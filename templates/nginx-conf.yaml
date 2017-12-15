@@ -1,0 +1,27 @@
+{{ if .Values.nginx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  # default backend from traefik
+  default.conf: |
+    server {
+        listen 80;
+        server_name  _;
+        include /etc/nginx/conf.d/healthcheck.inc;
+    }
+
+  healthcheck.inc: |
+    location = / {
+        return 200 'it works!';
+        add_header Content-Type text/plain;
+    }
+
+  {{ if .Values.nginx.htpasswdSecretName }}
+  restricted.inc: |
+    auth_basic "Restricted Content";
+    auth_basic_user_file /etc/nginx/htpasswd/secret-nginx-htpasswd;
+  {{ end }}
+
+{{ end }}

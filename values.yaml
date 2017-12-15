@@ -1,0 +1,15 @@
+spark:
+  enabled: true
+  image: orihoch/spark:modernize-dockerize
+
+mysql:
+  enabled: true
+
+traefik:
+  enabled: true
+
+nginx:
+  enabled: true
+
+global:
+  debug: true

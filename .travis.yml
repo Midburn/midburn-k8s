@@ -1,0 +1,8 @@
+language: bash
+sudo: required
+env:
+- K8S_CONTINUOUS_DEPLOYMENT=true
+services:
+- docker
+script:
+- ./continuous_deployment.sh

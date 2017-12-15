@@ -1,0 +1,10 @@
+global:
+  defaultNodePool: default-pool
+  debug: true
+
+traefik:
+  acmeDomains: |
+    [[acme.domains]]
+      main = "spark-ori-midburn-staging.uumpa.com"
+  acmeEmail: ori@uumpa.com
+  sparkHostsRule: "Host: spark-ori-midburn-staging.uumpa.com;"

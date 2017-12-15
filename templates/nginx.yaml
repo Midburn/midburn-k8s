@@ -1,0 +1,56 @@
+{{ if .Values.nginx.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  ports:
+  - name: "80"
+    port: 80
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: {{.Values.nginx.replicas | default "1"}}
+  template:
+    metadata:
+      labels:
+        app: nginx
+      annotations:
+        # update the pod on nginx-conf changes
+        checksum/config: {{ include (print $.Template.BasePath "/nginx-conf.yaml") . | sha256sum }}
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 1m
+            memory: 10Mi
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d
+          readOnly: true
+        {{ if .Values.nginx.htpasswdSecretName }}
+        - name: nginx-htpasswd
+          mountPath: /etc/nginx/htpasswd
+          readOnly: true
+        {{ end }}
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+      {{ if .Values.nginx.htpasswdSecretName }}
+      - name: nginx-htpasswd
+        secret:
+          secretName: {{ .Values.nginx.htpasswdSecretName }}
+      {{ end }}
+{{ end }}

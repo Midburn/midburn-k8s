@@ -1,0 +1,64 @@
+{{ if .Values.traefik.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: traefik
+spec:
+  # don't increase the replicas unless you switch to consul storage of acme certificates
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: traefik
+      annotations:
+        # update the pod on traefik configuration changes
+        checksum/config: {{ include (print $.Template.BasePath "/traefik-etc.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: traefik
+        image: traefik
+        ports:
+        - {containerPort: 80}
+        - {containerPort: 443}
+        resources:
+          requests: {cpu: 20m}
+        volumeMounts:
+        - name: etc-traefik
+          mountPath: /etc-traefik
+        - name: traefik-acme
+          mountPath: /traefic-acme
+        args:
+        - "--configFile=/etc-traefik/traefik.toml"
+      volumes:
+      - name: etc-traefik
+        configMap:
+          name: etc-traefik
+      - name: traefik-acme
+        hostPath:
+          type: DirectoryOrCreate
+          path: /var/traefik-acme
+      nodeSelector:
+        # we use shared host to simplify the configuration so we have to limit the pod to a specific host name
+        {{ if .Values.traefik.nodeHostName }}
+        kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
+        {{ end }}
+        # on first run, you can specify a node pool, then after the pod is scheduled, change to a hostname configuration
+        {{ if .Values.traefik.nodePool }}
+        cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
+        {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+spec:
+  ports:
+  - {name: '80', port: 80}
+  - {name: '443', port: 443}
+  selector:
+    app: traefik
+  type: LoadBalancer
+  {{ if .Values.traefik.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.traefik.loadBalancerIP | quote }}
+  {{ end }}
+{{ end }}
