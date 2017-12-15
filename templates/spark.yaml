@@ -17,6 +17,27 @@ spec:
         - {containerPort: 3000}
         resources:
           requests: {cpu: 20m}
+        env:
+        - name: ALLOW_POPULATE_DB
+          value: "yes"
+        - name: SPARK_DB_CLIENT
+          value: mysql
+        - name: SPARK_DB_HOSTNAME
+          value: db
+        - name: SPARK_DB_DBNAME
+          value: spark
+        - name: SPARK_DB_USER
+          value: spark
+        - name: SPARK_DB_PASSWORD
+          value: spark
+        - name: SPARK_DB_DEBUG
+          value: "false"
+        - name: SPARK_SERVER_URL
+          value: {{ .Values.spark.serverUrl | quote }}
+        - name: SPARK_MAILSERVER_ENABLE
+          value: "false"
+        - name: SPARK_RECAPTCHA_IGNORE
+          value: "true"
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
 ---

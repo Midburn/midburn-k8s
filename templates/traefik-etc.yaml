@@ -35,9 +35,11 @@ data:
     [file]
     
     [backends]
+      {{ if .Values.nginx.enabled }}
       [backends.nginx]
         [backends.nginx.servers.server1]
-          url = "http://nginx"
+          url = "http://nginx:80"
+      {{ end }}
 
       {{ if .Values.spark.enabled }}
       [backends.spark]
@@ -46,12 +48,16 @@ data:
       {{ end }}
 
     [frontends]
+      {{ if .Values.nginx.enabled }}
       [frontends.default]
         backend="nginx"
+        passHostHeader = true
+      {{ end }}
 
       {{ if .Values.spark.enabled }}
       [frontends.spark]
         backend="spark"
+        passHostHeader = true
           [frontends.spark.routes.route1]
             rule = "{{ .Values.traefik.sparkHostsRule }}"
       {{ end }}

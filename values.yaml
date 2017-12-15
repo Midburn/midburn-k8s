@@ -1,15 +1,18 @@
-spark:
-  enabled: true
-  image: orihoch/spark:modernize-dockerize
-
-mysql:
+adminer:
   enabled: true
 
-traefik:
+db:
   enabled: true
+
+global:
+  debug: false
 
 nginx:
   enabled: true
 
-global:
-  debug: true
+spark:
+  enabled: true
+  image: orihoch/spark:modernize-dockerize
+
+traefik:
+  enabled: true

@@ -7,9 +7,15 @@ data:
   # default backend from traefik
   default.conf: |
     server {
-        listen 80;
-        server_name  _;
-        include /etc/nginx/conf.d/healthcheck.inc;
+      listen 80;
+      server_name _;
+
+      include /etc/nginx/conf.d/healthcheck.inc;
+
+      location /adminer {
+        proxy_pass http://adminer:8080;
+        include /etc/nginx/conf.d/restricted.inc;
+      }
     }
 
   healthcheck.inc: |
@@ -18,10 +24,10 @@ data:
         add_header Content-Type text/plain;
     }
 
-  {{ if .Values.nginx.htpasswdSecretName }}
   restricted.inc: |
+    {{ if .Values.nginx.htpasswdSecretName }}
     auth_basic "Restricted Content";
     auth_basic_user_file /etc/nginx/htpasswd/secret-nginx-htpasswd;
-  {{ end }}
+    {{ end }}
 
 {{ end }}

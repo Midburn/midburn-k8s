@@ -1,10 +1,10 @@
 # The Midburn Kubernetes Environment
 
-[![Build Status](https://travis-ci.org/Midburn/midburn-k8s.svg?branch=master)](https://travis-ci.org/Midburn/midburn-k8s)
 
 ## Why can't it just work all the time?
 
 [![it can - with Kubernetes!](it-can-with-kubernetes.png)](https://cloud.google.com/kubernetes-engine/kubernetes-comic/)
+
 
 ## Interacting with the environment
 
@@ -16,82 +16,40 @@ You can interact with the Kubernetes environment in the following ways -
 
 You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files)
 
-## Installation and setup
 
-#### Authorize with Google Cloud
+## Initial installation and setup
 
-On google cloud shell it's not necessary, your shell is linked to your personal user - any permissions given by any project to your google user will be available.
+Install [Google Cloud SDK](https://cloud.google.com/sdk/) and run `gcloud auth login` (not necessary on Google Cloud Shell).
 
-From local PC run `gcloud auth login` and follow the instructions
-
-#### Authorize with GitHub and clone the k8s repo
-
-Having infrastructure as code means you should be able to push any changes to infrastructure configuration back to GitHub.
-
-You can use the following procudure on both Google Cloud Shell and from local PC
-
-Create an SSH key -
+Clone the repo
 
 ```
-[ ! -f .ssh/id_rsa.pub ] && ssh-keygen -t rsa -b 4096 -C "${USER}@cloudshell"
-cat ~/.ssh/id_rsa.pub
+git clone https://github.com/Midburn/midburn-k8s.git
 ```
 
-Add the key in github - https://github.com/settings/keys
-
-Clone the midburn-k8s repo
-
-```
-git clone git@github.com:midburn/midburn-k8s.git
-```
-
-Change to the midburn-k8s directory, all following commands should run from that directory
+All following commands should run from the midburn-k8s directory
 
 ```
 cd midburn-k8s
 ```
 
-#### Create a new cluster
 
-Creating a new cluster is easiest using the Google Kubernetes Engine UI. It's recommended to start with a minimum of 1 n1-standard-1 node. Need to bear in mind that kubernetes consumes some resources as well.
+## Connect to an existing environment
 
-#### Create a new environment
-
-Each environment should have the following files in the root of the project:
-
-- `.env.ENVIRONMENT_NAME` *(required)*: the basic environment connection details
-- `values.ENVIRONMENT_NAME.yaml` *(optional)*: override default helm chart values for this namespace
-- `values.ENVIRONMENT_NAME.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
-
-These files shouldn't contain any secrets and can be committed to a public repo.
-
-#### Connecting to an environment
+The main midburn environments should be committed to this repo, each environment has a corresponding `.env.ENVIRONMENT_NAME` file
 
 ```
 source switch_environment.sh ENVIRONMENT_NAME
 ```
 
-On cloud shell, if you are mostly using this environment / project, add this to your .bashrc:
-
-```
-cd midburn-k8s; source switch_environment.sh ENVIRONMENT_NAME
-```
-
-#### Initialize / Upgrade Helm
-
-Installs / upgrades the Helm server-side component on the cluster
-
-```
-helm init --upgrade
-```
 
 ## Releases and deployments
 
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
 
-Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
+Make sure you have the latest helm installed on both client and server: `helm init --upgrade`
 
-To update the desired state, run:
+Deploy:
 
 ```
 ./helm_upgrade.sh
@@ -99,7 +57,7 @@ To update the desired state, run:
 
 Bear in mind that when the command completes it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
 
-#### Helm upgrade options
+Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
 
 You can add arguments to `./helm_upgrade.sh` which are forwarded to the underlying `helm upgrade` command.
 
@@ -113,13 +71,15 @@ Some useful arguments:
 
 Additionally, you can to use `force_update.sh` to force an update on a specific deployment.
 
-#### Helm configuration values
 
-The default values are at `values.yaml` - these are used in the chart template files
+## Helm configuration values
 
-Each environment adds or overrides with environment specific settings using `values.ENVIRONMENT_NAME.yaml` which is merged with the `values.yaml` file
+The default values are at `values.yaml` - these are used in the chart template files (under `templates` directory)
 
-Automation scripts can also use the `values.ENVIRONMENT_NAME.auto-updated.yaml` file to update values programatically using the `update_yaml.py` script
+Each environment can override these values using `values.ENVIRONMENT_NAME.yaml`
+
+Finally, automation scripts write values to `values.ENVIRONMENT_NAME.auto-updated.yaml` using the `update_yaml.py` script
+
 
 ## Secrets
 
@@ -128,6 +88,50 @@ Secrets are stored and managed directly in kubernetes and are not managed via He
 To update an existing secret, delete it first `kubectl delete secret SECRET_NAME`
 
 After updating a secret you should update the affected deployments, you can use `./force_update.sh` to do that
+
+All secrets are optional so you can run the environment without any secretes and will use default values similar to dev environments.
+
+
+## Create a new environment
+
+Each environment should have the following files in the root of the project:
+
+- `.env.ENVIRONMENT_NAME` *(required)*: the basic environment connection details
+- `values.ENVIRONMENT_NAME.yaml` *(optional)*: override default helm chart values for this namespace
+- `values.ENVIRONMENT_NAME.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
+
+These files shouldn't contain any secrets and can be committed to a public repo.
+
+You don't have to create a new cluster for each environment, you can use namespaces to differentiate between environments and keep everything on a single cluster.
+
+If you are using an existing cluster, skip to "once the cluster is running" below
+
+Get the available Kubernetes versions:
+
+```
+gcloud --project=<GOOGLE_PROJECT_ID> container get-server-config --zone=us-central1-a
+```
+
+Create a cluster (modify version to latest from previous command):
+
+```
+gcloud --project=<GOOGLE_PROJECT_ID> container clusters create --zone=us-central1-a <CLUSTER_NAME> \
+                                                               --cluster-version=1.8.4-gke.0 \
+                                                               --num-nodes=1
+```
+
+Once the cluster is running, connect to the environment:
+
+```
+source switch_environment.sh ENVIRONMENT_NAME
+```
+
+If it's a new cluster - install the Helm server-side component
+
+```
+helm init
+```
+
 
 ## Docker OPS
 
@@ -164,6 +168,7 @@ docker run -it -v "`pwd`/secret-midburn-k8s-ops.json:/k8s-ops/secret.json" \
 
 You should be able to run `source switch_environment.sh ENVIRONMENT_NAME` and continue working with the environment from there.
 
+
 ## Continuos Deployment
 
 Each app / module is self-deploying using the ops docker and manages it's own deployment script.
@@ -175,8 +180,6 @@ The continuous deployment flow is based on:
 * GitHub - for persistency of deployment environment values - GitHub maintains the state of the environment. Each app commits deployment updates to the k8s repo.
 
 We use [Travis CLI](https://github.com/travis-ci/travis.rb#installation) below but you can also do the setup from the UI.
-
-#### Setting up a repo for continuous deployment
 
 Enable Travis for the repo (run `travis enable` from the repo directory)
 
@@ -206,6 +209,7 @@ travis env set --private K8S_OPS_GITHUB_REPO_TOKEN "*****"
 
 Commit the .travis.yml changes and the encrypted file.
 
+
 ## App Docker Images
 
 For the above continuous deployment procedure you will also need to build each app docker image automatically.
@@ -224,6 +228,7 @@ This allows the continuous deployment to update the image tag ASAP without waiti
 
 Kubernetes will make sure the deployment occurs only when the image is ready.
 
+
 ## Exposing services
 
 Main entrypoint is a [traefik](https://traefik.io/) service, exposed via a load balancer.
@@ -232,7 +237,8 @@ Traefik provides application load balancing with path/host-based rules. HTTPS is
 
 In addition to traefik, the nginx pod can optionally be used on specific service for more advanced use-cases such as auth or caching.
 
-#### Static IP for the load balancer
+
+## Static IP for the load balancer
 
 Reserve a static IP:
 
@@ -253,7 +259,8 @@ traefik:
   loadBalancerIP: <THE_STATIC_IP>
 ```
 
-#### Http authentication
+
+## Http authentication
 
 HTTP authentication is provided using nginx.
 
@@ -278,4 +285,26 @@ Update the value in `values.ENVIRONMENT_NAME.yaml`:
 ```
 nginx:
   htpasswdSecretName: nginx-htpasswd
+```
+
+
+## Authorize with GitHub to push changes
+
+Having infrastructure as code means you should be able to push any changes to infrastructure configuration back to GitHub.
+
+You can use the following procudure on both Google Cloud Shell and from local PC
+
+Create an SSH key -
+
+```
+[ ! -f .ssh/id_rsa.pub ] && ssh-keygen -t rsa -b 4096 -C "${USER}@cloudshell"
+cat ~/.ssh/id_rsa.pub
+```
+
+Add the key in github - https://github.com/settings/keys
+
+Clone the repo
+
+```
+git clone git@github.com:midburn/midburn-k8s.git
 ```

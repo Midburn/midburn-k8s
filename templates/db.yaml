@@ -1,0 +1,46 @@
+{{ if .Values.db.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: mariadb:10.0
+        ports:
+        - {containerPort: 3306}
+        resources:
+          requests: {cpu: 20m}
+        {{ if .Values.db.secretName }}
+        envFrom:
+        - secretKeyRef:
+            name: {{ .Values.db.secretName | quote }}
+        {{ else }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        - name: MYSQL_DATABASE
+          value: spark
+        - name: MYSQL_USER
+          value: spark
+        - name: MYSQL_PASSWORD
+          value: spark
+        {{ end }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: db}
+spec:
+  ports:
+  - name: '3306'
+    port: 3306
+  selector: {app: db}
+{{ end }}
