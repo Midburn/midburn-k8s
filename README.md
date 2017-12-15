@@ -1,5 +1,6 @@
 # The Midburn Kubernetes Environment
 
+**work in progress, mostly works but not fully usable yet**
 
 ## Why can't it just work all the time?
 

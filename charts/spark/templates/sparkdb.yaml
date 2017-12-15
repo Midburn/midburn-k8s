@@ -1,26 +1,26 @@
-{{ if .Values.db.enabled }}
+{{ if .Values.enabled }}
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: db
+  name: sparkdb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: db
+        app: sparkdb
     spec:
       containers:
-      - name: db
+      - name: sparkdb
         image: mariadb:10.0
         ports:
         - {containerPort: 3306}
         resources:
           requests: {cpu: 20m}
-        {{ if .Values.db.secretName }}
+        {{ if .Values.global.sparkdbSecretName }}
         envFrom:
-        - secretKeyRef:
-            name: {{ .Values.db.secretName | quote }}
+        - secretRef:
+            name: {{ .Values.global.sparkdbSecretName | quote }}
         {{ else }}
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -37,10 +37,10 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: db}
+metadata: {name: sparkdb}
 spec:
   ports:
   - name: '3306'
     port: 3306
-  selector: {app: db}
+  selector: {app: sparkdb}
 {{ end }}

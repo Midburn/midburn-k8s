@@ -1,6 +1,7 @@
 global:
   defaultNodePool: default-pool
   debug: true
+  sparkdbSecretName: sparkdb
 
 traefik:
   acmeDomains: |

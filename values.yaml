@@ -1,7 +1,7 @@
 adminer:
   enabled: true
 
-db:
+sparkdb:
   enabled: true
 
 global:
