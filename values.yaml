@@ -6,8 +6,12 @@ sparkdb:
 
 global:
   debug: false
+  opsImage: orihoch/midburn-k8s
 
 nginx:
+  enabled: true
+
+ops:
   enabled: true
 
 spark:

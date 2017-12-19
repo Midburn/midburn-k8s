@@ -1,0 +1,38 @@
+{{ if .Values.ops.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ops
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ops
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: ops
+        image: {{ .Values.global.opsImage | quote }}
+        resources:
+          requests:
+            cpu: "0.001"
+            memory: "10Mi"
+        command:
+        - bash
+        - "-c"
+        - "while true; do sleep 86400; done"
+        {{ if .Values.global.k8sOpsSecretName }}
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        {{ end }}
+      {{ if .Values.global.k8sOpsSecretName }}
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: {{ .Values.global.k8sOpsSecretName | quote }}
+      {{ end }}
+{{ end }}

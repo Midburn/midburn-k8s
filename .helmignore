@@ -1,0 +1,4 @@
+*.sql
+*.sh
+*.py
+secret-*

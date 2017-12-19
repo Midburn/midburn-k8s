@@ -1,0 +1,37 @@
+# production environment values
+
+global:
+  defaultNodePool: production-1
+  debug: false
+
+traefik:
+  acmeDomains: |
+    [[acme.domains]]
+      main = "k8s.midburn.org"
+    [[acme.domains]]
+      main = "spark.midburn.org"
+  acmeEmail: support@midburn.org
+  sparkHostsRule: "Host: spark.midburn.org;"
+
+spark:
+  # App
+  serverUrl: https://spark.midburn.org/
+  nodeEnv: production
+  # DB
+  rootSecretName: sparkdb-root
+  appSecretName: sparkdb-app
+  # Mail
+  secureMailserverSecretName: spark-mail
+  mailserverFrom: support@midburn.org
+  mailserverHost: email-smtp.eu-west-1.amazonaws.com
+  mailserverPort: 465
+  # Drupal
+  drupalSecretName: spark-drupal
+  drupalProfileApiURL: https://profile.midburn.org
+  drupalProfileApiUser: spark@midburn.org
+  # Volunteers
+  volunteersBaseUrl: http://volunteers.spark.midburn.org
+#  # Facebook
+#  facebookSecretName: spark-facebook
+  # Recaptcha
+  recaptchaSecretName: spark-recaptcha

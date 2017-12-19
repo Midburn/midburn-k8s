@@ -1,0 +1,41 @@
+{{ if .Values.enabled }}{{ if .Values.dbImportJobSuffix }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sparkdb-import-{{ .Values.dbImportJobSuffix }}
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      name: sparkdb-import-{{ .Values.dbImportJobSuffix }}
+    spec:
+      containers:
+      - name: sparkdb-import
+        image: {{ .Values.dbImportOpsImage | quote }}
+        command:
+        - bash
+        - "-c"
+        - |
+          [ -z "${IMPORT_URL}" ] && echo "Missing IMPORT_URL" && exit 1;
+          [ -z "${MYSQL_ROOT_PASSWORD}" ] && echo "Missing MYSQL_ROOT_PASSWORD" && exit 1;
+          ! gsutil cp "${IMPORT_URL}" /import.sql && echo "Failed to download IMPORT_URL: ${IMPORT_URL}" && exit 1;
+          ls -lah /import.sql &&
+          ! cat /import.sql | mysql --host=sparkdb --port=3306 --protocol=tcp --user=root \
+                                    "--password=${MYSQL_ROOT_PASSWORD}" && echo "Failed mysql import" && exit 1;
+          echo "Great Success!"
+        env:
+        - name: IMPORT_URL
+          value: {{ .Values.dbImportUrl | quote }}
+        - name: MYSQL_ROOT_PASSWORD
+          {{ if .Values.rootSecretName }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.rootSecretName | quote }}
+              key: MYSQL_ROOT_PASSWORD
+          {{ else }}
+          value: "123456"
+          {{ end }}
+      restartPolicy: Never
+  backoffLimit: 4
+{{ end }}{{ end }}

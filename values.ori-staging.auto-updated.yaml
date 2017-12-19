@@ -1,2 +1,0 @@
-spark:
-  image: orihoch/spark:modernize-dockerize@sha256:f0c79441dbda8dbc6436e069cef0517d255f4c30919f3d4cf9582c02f7a94a06

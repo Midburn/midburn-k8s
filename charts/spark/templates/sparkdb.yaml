@@ -1,4 +1,15 @@
 {{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparkdb
+spec:
+  ports:
+  - name: '3306'
+    port: 3306
+  selector:
+    app: sparkdb
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -17,11 +28,16 @@ spec:
         - {containerPort: 3306}
         resources:
           requests: {cpu: 20m}
-        {{ if .Values.global.sparkdbSecretName }}
+        {{ if .Values.rootSecretName }}
         envFrom:
+        # root secret - contains the mysql root password
         - secretRef:
-            name: {{ .Values.global.sparkdbSecretName | quote }}
+            name: {{ .Values.rootSecretName | quote }}
+        # app secret - contains the spark db connection details
+        - secretRef:
+            name: {{ .Values.appSecretName | quote }}
         {{ else }}
+        # default values for insecure environment
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "123456"
@@ -34,13 +50,4 @@ spec:
         {{ end }}
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
----
-apiVersion: v1
-kind: Service
-metadata: {name: sparkdb}
-spec:
-  ports:
-  - name: '3306'
-    port: 3306
-  selector: {app: sparkdb}
 {{ end }}

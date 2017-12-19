@@ -1,4 +1,15 @@
-{{ if .Values.spark.enabled }}
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark
+spec:
+  ports:
+  - name: '3000'
+    port: 3000
+  selector:
+    app: spark
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -10,43 +21,164 @@ spec:
       labels:
         app: spark
     spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: spark
-        image: {{ .Values.spark.image | quote }}
+        image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}
         ports:
-        - {containerPort: 3000}
+        - containerPort: 3000
         resources:
-          requests: {cpu: 20m}
+          requests:
+            cpu: 20m
         env:
-        - name: ALLOW_POPULATE_DB
-          value: "yes"
+
+        #### DB configuration ####
         - name: SPARK_DB_CLIENT
           value: mysql
         - name: SPARK_DB_HOSTNAME
-          value: db
+          value: sparkdb
+        - name: SPARK_DB_DEBUG
+          value: "false"
+        {{ if .Values.appSecretName }}
+        # secured environment - app only has access to spark db
+        - name: SPARK_DB_DBNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.appSecretName | quote }}
+              key: MYSQL_DATABASE
+        - name: SPARK_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.appSecretName | quote }}
+              key: MYSQL_USER
+        - name: SPARK_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.appSecretName | quote }}
+              key: MYSQL_PASSWORD
+        {{ else }}
+        # insecure environment - default values to match default sparkdb values
         - name: SPARK_DB_DBNAME
           value: spark
         - name: SPARK_DB_USER
           value: spark
         - name: SPARK_DB_PASSWORD
           value: spark
-        - name: SPARK_DB_DEBUG
-          value: "false"
+        {{ end }}
+        {{ if .Values.allowPopulateDB }}
+        - name: ALLOW_POPULATE_DB
+          value: "yes"
+        {{ end }}
+
+        #### App configuration ####
+        - name: SPARK_SERVER_PORT
+          value: "3000"
+        - name: SPARK_SERVER_HOSTNAME
+          value: localhost
+        - name: SPARK_SERVER_PROTOCOL
+          value: http
         - name: SPARK_SERVER_URL
-          value: {{ .Values.spark.serverUrl | quote }}
-        - name: SPARK_MAILSERVER_ENABLE
-          value: "false"
+          value: {{ .Values.serverUrl | quote }}
         - name: SPARK_RECAPTCHA_IGNORE
           value: "true"
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
----
-apiVersion: v1
-kind: Service
-metadata: {name: spark}
-spec:
-  ports:
-  - name: '3000'
-    port: 3000
-  selector: {app: spark}
+        {{ if .Values.nodeEnv }}
+        - name: NODE_ENV
+          value: {{ .Values.nodeEnv | quote }}
+        {{ end }}
+
+        #### Mail configuration ####
+        {{ if .Values.secureMailserverSecretName }}
+        - name: SPARK_MAILSERVER_ENABLE
+          value: "true"
+        - name: SPARK_MAILSERVER_SECURE_CONNECTION
+          value: "true"
+        - name: SPARK_MAILSERVER_METHOD
+          value: SMTP
+        - name: SPARK_MAILSERVER_FROM
+          value: {{ .Values.mailserverFrom | quote }}
+        - name: SPARK_MAILSERVER_HOST
+          value: {{ .Values.mailserverHost | quote }}
+        - name: SPARK_MAILSERVER_PORT
+          value: {{ .Values.mailserverPort | quote }}
+        - name: SPARK_MAILSERVER_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secureMailserverSecretName | quote }}
+              key: SPARK_MAILSERVER_USER
+        - name: SPARK_MAILSERVER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secureMailserverSecretName | quote }}
+              key: SPARK_MAILSERVER_PASSWORD
+        {{ else }}
+        - name: SPARK_MAILSERVER_ENABLE
+          value: "false"
+        {{ end }}
+
+        # PAYMENTS CONFIGURATIONS
+        - name: SPARK_ICREDIT_URL
+          value: ""
+        - name: SPARK_ICREDIT_PRIVATETOKEN
+          value: ""
+
+        # FACEBOOK APP INTEGRATION
+        - name: SPARK_FACEBOOK_APP
+          value: "1083906121721925"
+        {{ if .Values.facebookSecretName }}
+        - name: SPARK_FACEBOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.facebookSecretName | quote }}
+              key: SPARK_FACEBOOK_SECRET
+        {{ end }}
+        - name: SPARK_FACEBOOK_CALLBACK
+          value: {{ .Values.facebookCallback | default "http://localhost:3000" | quote }}
+
+        # RECAPTCHA
+        {{ if .Values.recaptchaSecretName }}
+        - name: SPARK_RECAPTCHA_IGNORE
+          value: "false"
+        - name: SPARK_RECAPTCHA_SITEKEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.recaptchaSecretName | quote }}
+              key: SPARK_RECAPTCHA_SITEKEY
+        - name: SPARK_RECAPTCHA_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.recaptchaSecretName | quote }}
+              key: SPARK_RECAPTCHA_SECRETKEY
+        {{ else }}
+        - name: SPARK_RECAPTCHA_IGNORE
+          value: "true"
+        {{ end }}
+
+        # DRUPAL
+        {{ if .Values.drupalSecretName }}
+        - name: USE_DRUPAL_CACHE
+          value: "true"
+        {{ if .Values.drupalTicketSyncEveryXMinutes }}
+        - name: DRUPAL_TICKET_SYNC_EVERY_X_MINUTES
+          value: {{ .Values.drupalTicketSyncEveryXMinutes | quote }}
+        {{ end }}
+        - name: DRUPAL_PROFILE_API_URL
+          value: {{ .Values.drupalProfileApiURL | quote }}
+        - name: DRUPAL_PROFILE_API_USER
+          value: {{ .Values.drupalProfileApiUser | quote }}
+        - name: DRUPAL_PROFILE_API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.drupalSecretName | quote }}
+              key: DRUPAL_PROFILE_API_PASSWORD
+        {{ end }}
+
+        # VOLUNTEERS
+        {{ if .Values.volunteersBaseUrl }}
+        - name: VOLUNTEERS_BASE_URL
+          value: {{ .Values.volunteersBaseUrl | quote }}
+        {{ end }}
+
+
+
 {{ end }}

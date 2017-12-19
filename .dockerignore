@@ -1,3 +1,6 @@
 .env
 .git
-secret-*
+secret*
+.travis.yml
+continuous_deployment.sh
+environments

@@ -1,0 +1,35 @@
+# ori-staging environment values
+
+global:
+  defaultNodePool: default-pool
+  debug: true
+  k8sOpsSecretName: midburn-k8s-ops
+  k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+
+traefik:
+  acmeDomains: |
+    [[acme.domains]]
+      main = "spark.midburn-staging.uumpa.com"
+    [[acme.domains]]
+      main = "midburn-staging.uumpa.com"
+  acmeEmail: ori@uumpa.com
+  sparkHostsRule: "Host: spark.midburn-staging.uumpa.com;"
+
+spark:
+  serverUrl: https://spark.midburn-staging.uumpa.com/
+
+  # DB
+  rootSecretName: sparkdb-root
+  appSecretName: sparkdb-app
+
+  # import database from old spark staging
+  dbImportJobSuffix: "2017-12-16-08-10"
+  dbImportUrl: gs://uumpa-midburn-db-dumps/spark-staging-db-dump-2017-12-16-08-10.sql
+  dbImportOpsImage: orihoch/midburn-k8s@sha256:071a81a89485e05a847c84b0c9a2f2c489358664af063aa81a15311909f01261
+
+  # Mail - using Ori's Mailjet account
+  disableMailtrap: "true"
+  secureMailserverSecretName: spark-mail
+  mailserverFrom: support@midburn-staging.uumpa.com
+  mailserverHost: in-v3.mailjet.com
+  mailserverPort: 2525

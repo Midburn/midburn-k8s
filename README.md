@@ -1,26 +1,29 @@
 # The Midburn Kubernetes Environment
 
-**work in progress, mostly works but not fully usable yet**
-
 ## Why can't it just work all the time?
 
 [![it can - with Kubernetes!](it-can-with-kubernetes.png)](https://cloud.google.com/kubernetes-engine/kubernetes-comic/)
+
+https://cloud.google.com/kubernetes-engine/kubernetes-comic/
 
 
 ## Interacting with the environment
 
 You can interact with the Kubernetes environment in the following ways - 
 
-* [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - The recommended and easiest way for running management commands. Just setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying by mistake).
+* GitHub - commits to master branch are continuously deployed to the relevant environment. See .travis.yaml for the continuous deployment configuration and deployed environments.
+* [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - The recommended and easiest way for running management commands. Just setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying by mistake). You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files).
 * Any modern PC / OS should also work, you will just need to install some basic dependencies like Docker and Google Cloud SDK (possibly more). The main problem with working from local PC is the network connection, if you have a stable, fast connection and know how to install the dependencies, you might be better of running from your own PC.
 * Docker + Google Cloud service account - for automation / CI / CD. See the Docker Ops section below for more details.
-
-You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files)
 
 
 ## Initial installation and setup
 
-Install [Google Cloud SDK](https://cloud.google.com/sdk/) and run `gcloud auth login` (not necessary on Google Cloud Shell).
+Ensure you have permissions on the relevant Google Project. Permissions are personal, so once you authenticate with your google account, you will have all permissions granted for you by the different Google Cloud projects.
+
+To interact with the environment locally, install [Google Cloud SDK](https://cloud.google.com/sdk/) and run `gcloud auth login` to authenticate.
+
+On Google Cloud Shell you are already authenticated and all dependencies are installed.
 
 Clone the repo
 
@@ -37,16 +40,27 @@ cd midburn-k8s
 
 ## Connect to an existing environment
 
-The main midburn environments should be committed to this repo, each environment has a corresponding `.env.ENVIRONMENT_NAME` file
+The main environments should be committed to this repo under `environments` directory
+
+Each directory under `environments` corresponds to an environment name which you can connect to:
 
 ```
 source switch_environment.sh ENVIRONMENT_NAME
 ```
 
+Make sure you are connected to the correct environment before running any of the following commands.
+
 
 ## Releases and deployments
 
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
+
+Notes regarding deployment to the main, shared environments (`staging` / `production`):
+  * The preferred way to deploy is by opening and merging a pull request - this prevents infrastructure deployment risks and is generally more secure.
+  * If you intend to do some infrastructure development, consider creating your own personal environment and testing on that.
+  * If you want to update an attribute of a specific deployment, see the section below - Patching configuration values without Helm
+
+If you still want to deploy directly, just make sure you are the only one working on the environment and/or update with the master branch to prevent infrastructure conflicts.
 
 Make sure you have the latest helm installed on both client and server: `helm init --upgrade`
 
@@ -56,7 +70,7 @@ Deploy:
 ./helm_upgrade.sh
 ```
 
-Bear in mind that when the command completes it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
+When helm upgrade command completes successfully it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
 
 Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
 
@@ -75,11 +89,11 @@ Additionally, you can to use `force_update.sh` to force an update on a specific 
 
 ## Helm configuration values
 
-The default values are at `values.yaml` - these are used in the chart template files (under `templates` directory)
+The default values are at `values.yaml` - these are used in the chart template files (under `templates` and `charts` directories)
 
-Each environment can override these values using `values.ENVIRONMENT_NAME.yaml`
+Each environment can override these values using `environments/ENVIRONMENT_NAME/values.yaml`
 
-Finally, automation scripts write values to `values.ENVIRONMENT_NAME.auto-updated.yaml` using the `update_yaml.py` script
+Finally, automation scripts write values to `environments/ENVIRONMENT_NAME/values.auto-updated.yaml` using the `update_yaml.py` script
 
 
 ## Secrets
@@ -92,16 +106,31 @@ After updating a secret you should update the affected deployments, you can use 
 
 All secrets are optional so you can run the environment without any secretes and will use default values similar to dev environments.
 
+Each environment may include a script to create the environment secrets under `environments/ENVIRONMENT_NAME/secrets.sh` - this file is not committed to Git.
+
+You can use the following snippet in the secrets.sh script to check if secret exists before creating it:
+
+```
+! kubectl describe secret <SECRET_NAME> &&\
+  kubectl create secret generic <SECRET_NAME> <CREATE_SECRET_PARAMS>
+```
+
+
+## Subcharts
+
+Some components are defined in Helm sub charts under `charts` directory.
+
+Each sub-chart has a README.md with details about setting up and using that chart.
+
 
 ## Create a new environment
 
-Each environment should have the following files in the root of the project:
+Each environment should have the following files:
 
-- `.env.ENVIRONMENT_NAME` *(required)*: the basic environment connection details
-- `values.ENVIRONMENT_NAME.yaml` *(optional)*: override default helm chart values for this namespace
-- `values.ENVIRONMENT_NAME.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
-
-These files shouldn't contain any secrets and can be committed to a public repo.
+- `environments/ENVIRONMENT_NAME/.env` *(required)*: the basic environment connection details
+- `environments/ENVIRONMENT_NAME/values.yaml` *(optional)*: override default helm chart values for this environment
+- `environments/ENVIRONMENT_NAME/values.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
+- `environments/ENVIRONMENT_NAME/secrets.sh` *(optional)* create the secrets for this environment, shouldn't be committed to Git.
 
 You don't have to create a new cluster for each environment, you can use namespaces to differentiate between environments and keep everything on a single cluster.
 
@@ -138,13 +167,74 @@ helm init
 
 To faciliate CI/CD and other automated flows you can use the provided ops Dockerfile.
 
-The ops container requires a Google Cloud service key:
+You should get the `secret-midburn-k8s-ops.json` file from a team member (see below for how to create it)
+
+Once you have this file in the current directory you can run the following to start a bash session in staging environment:
+
+Assuming you have the service account secret available at `secret-midburn-k8s-ops.json` you can run the following to start an interactive bash session:
+
+```
+./run_docker_ops.sh staging
+```
+
+Inside the environment you can run all ops scripts and kubectl commands
+
+For security, the docker ops by default downloads a fresh copy of midburn-k8s repo and docker image, to use the local directory (assuming you are inside the midburn-k8s directory):
+
+```
+./run_docker_ops.sh staging "" "." "."
+```
+
+
+## Building and publishing the OPS image
+
+The OPS docker image should be publically available on docker hub
+
+Pull the docker image which is built by the continuous deployment
+
+```
+gcloud docker -- pull gcr.io/uumpa123/midburn-k8s
+```
+
+Tag and push to docker hub
+
+```
+docker tag gcr.io/uumpa123/midburn-k8s orihoch/midburn-k8s
+```
+
+Update the image in the run_docker_ops.sh script using the sha256: id to refer to the image:
+
+```
+orihoch/midburn-k8s@sha256:95f0cb600504dd891aa8a4dba25aef63091984da27d0c3072085673665fb4cd6
+```
+
+
+## Enable the ops management pos
+
+Create the ops secret to allow using the ops deployment to run management tasks from inside the cluster:
+
+```
+kubectl create secret generic midburn-k8s-ops "--from-file=secret.json=environments/${K8S_ENVIRONMENT_NAME}/secret-midburn-k8s-ops.json"
+```
+
+Set in values
+
+```
+global:
+  k8sOpsSecretName: midburn-k8s-ops
+  k8sOpsImage: orihoch/midburn-k8s@sha256:dc3531820588d0b217a2e4af0432e492900cc78efd078a9a555889f80f015222
+```
+
+You can now `kubectl exec -it` to this pod to run management commands inside the cluster
+
+
+## Creating a new service account and secret-midburn-k8s-ops.json file
 
 ```
 export SERVICE_ACCOUNT_NAME="midburn-k8s-ops"
 export SERVICE_ACCOUNT_ID="${SERVICE_ACCOUNT_NAME}@${CLOUDSDK_CORE_PROJECT}.iam.gserviceaccount.com"
 gcloud iam service-accounts create "${SERVICE_ACCOUNT_NAME}"
-gcloud iam service-accounts keys create "--iam-account=${SERVICE_ACCOUNT_ID}" ./secret-midburn-k8s-ops.json
+gcloud iam service-accounts keys create "--iam-account=${SERVICE_ACCOUNT_ID}" "secret-midburn-k8s-ops.json"
 ```
 
 Add admin roles for common services:
@@ -156,23 +246,66 @@ gcloud projects add-iam-policy-binding --role "roles/cloudbuild.builds.editor" "
                                        --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
 gcloud projects add-iam-policy-binding --role "roles/container.admin" "${CLOUDSDK_CORE_PROJECT}" \
                                        --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
+gcloud projects add-iam-policy-binding --role "roles/viewer" "${CLOUDSDK_CORE_PROJECT}" \
+                                       --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
 ```
 
-Build and run the ops docker container
+
+## Patching configuration values without Helm
+
+This method works in the following conditions:
+
+* You want to make changes to a main / shared environment (`production` / `staging`) - otherwise, just do a helm upgrade.
+* You want to modify a specific value in a specific resource (usually a deployment)
+* This value is represented in the Helm configuration values
+
+Update the auto-updated yaml value/s
 
 ```
-docker build -t midburn-k8s-ops . &&\
-docker run -it -v "`pwd`/secret-midburn-k8s-ops.json:/k8s-ops/secret.json" \
-               -v "`pwd`:/ops" \
-               midburn-k8s-ops
+./helm_update_values.sh '{"spark":{"image":"orihoch/spark:testing123"}}'
 ```
 
-You should be able to run `source switch_environment.sh ENVIRONMENT_NAME` and continue working with the environment from there.
+Commit and push to GitHub master branch. It's important to commit the changes to Git **first** and only then patch the deployment - this prevents infrastrcuture conflicts.
+
+Patch the deployment and wait for successful rollout
+
+```
+kubectl set image deployment/spark spark=orihoch/spark:testing123
+kubectl rollout status deployment spark
+```
 
 
-## Continuos Deployment
+## Patching configuration values from CI / automation scripts
 
-Each app / module is self-deploying using the ops docker and manages it's own deployment script.
+Create a [GitHub machine user](https://developer.github.com/v3/guides/managing-deploy-keys/#machine-users).
+
+Give this user write permissions to the k8s repo.
+
+Set the following environment variables in the CI environment:
+
+* `K8S_OPS_GITHUB_REPO_TOKEN` - the machine user's token
+* `DEPLOYMENT_BOT_EMAIL` - you can make up any email, it will show up in the commit
+* `DEPLOYMENT_BOT_NAME` - same as the email, can be any name
+
+Run the `helm_update_values.sh` script from an authenticated OPS container connected to the relevant environment
+
+```
+./helm_update_values.sh '{"spark":{"image":"orihoch/spark:testing123"}}' "${K8S_ENVIRONMANE_NAME} environment - spark image update --no-deploy"
+```
+
+Add the `--no-deploy` argument to the commit message to prevent automatic deployment if you want to deploy manually
+
+To patch the resource manually, you could run something like this afterwards:
+
+```
+kubectl set image deployment/spark spark=orihoch/spark:testing123
+kubectl rollout status deployment spark
+```
+
+
+## Continuous Deployment
+
+Each app / module is self-deploying using the above method for patching configurations
 
 The continuous deployment flow is based on:
 
@@ -184,19 +317,19 @@ We use [Travis CLI](https://github.com/travis-ci/travis.rb#installation) below b
 
 Enable Travis for the repo (run `travis enable` from the repo directory)
 
-Copy `.travis.yml` and `continuous_deployment.sh` from this repo to the app repo
+Copy `.travis.yml` from this repo to the app repo and modify the values / script according to your app requirements
 
-Modify the deployment code in continuous_deployment.sh according to your app requirements
+Set the k8s ops service account secret on the app's travis
 
-Set the k8s ops service account secret on the app's travis:
+This command should run from the root of the external app, assuming the midburn-k8s repo is a sibling directory:
 
 ```
 travis encrypt-file ../midburn-k8s/secret-midburn-k8s-ops.json secret-midburn-k8s-ops.json.enc
 ```
 
-Copy the `openssl` command output by the above command and modify in your continuous_deployment.sh
+Copy the `openssl` command output by the above command and modify in the .travis-yml
 
-Modify the -out param of the openssl command to `-out k8s-ops-secret.json`
+The -out param should be `-out k8s-ops-secret.json`
 
 Create a GitHub machine user according to [these instructions](https://developer.github.com/v3/guides/managing-deploy-keys/#machine-users).
 
@@ -209,25 +342,6 @@ travis env set --private K8S_OPS_GITHUB_REPO_TOKEN "*****"
 ```
 
 Commit the .travis.yml changes and the encrypted file.
-
-
-## App Docker Images
-
-For the above continuous deployment procedure you will also need to build each app docker image automatically.
-
-The easiest way is to add an automated build for the app repo in Google Container Registry, you can do that in the UI
-
-The above example continuous deployment script uses an image which is tagged with the git commit sha
-
-In this case the resulting image tag should look like:
-
-`gcr.io/midburn/spark:GIT_COMMIT_SHA`
-
-Where the tag is the git commit sha
-
-This allows the continuous deployment to update the image tag ASAP without waiting for it to be built.
-
-Kubernetes will make sure the deployment occurs only when the image is ready.
 
 
 ## Exposing services
@@ -308,4 +422,12 @@ Clone the repo
 
 ```
 git clone git@github.com:midburn/midburn-k8s.git
+```
+
+
+
+## Delete an environment and related resources
+
+```
+helm delete midburn --purge
 ```
