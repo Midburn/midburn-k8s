@@ -1,0 +1,33 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: volunteersdb
+spec:
+  ports:
+  - name: '27017'
+    port: 27017
+  selector:
+    app: volunteersdb
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: volunteersdb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: volunteersdb
+    spec:
+      containers:
+      - name: volunteersdb
+        image: mongo
+        ports:
+        - {containerPort: 27017}
+        resources:
+          requests: {cpu: 20m}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+{{ end }}

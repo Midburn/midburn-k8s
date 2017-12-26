@@ -30,6 +30,10 @@ data:
       storage = "/traefic-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
+    {{ if .Values.volunteers.enabled }}{{ if .Values.rootDomain }}
+    [[acme.domains]]
+      main = "volunteers.{{ .Values.rootDomain }}"
+    {{ end }}{{ end }}
     {{ end }}
 
     [file]
@@ -47,6 +51,12 @@ data:
           url = "http://spark:3000"
       {{ end }}
 
+      {{ if .Values.volunteers.enabled }}
+      [backends.volunteers]
+        [backends.volunteers.servers.server1]
+          url = "http://volunteers:8000"
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -61,5 +71,13 @@ data:
           [frontends.spark.routes.route1]
             rule = "{{ .Values.traefik.sparkHostsRule }}"
       {{ end }}
+
+      {{ if .Values.volunteers.enabled }}{{ if .Values.rootDomain }}
+      [frontends.volunteers]
+        backend="volunteers"
+        passHostHeader = true
+          [frontends.volunteers.routes.route1]
+            rule = "Host: volunteers.{{ .Values.rootDomain }};"
+      {{ end }}{{ end }}
 
 {{ end }}

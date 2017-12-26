@@ -12,6 +12,8 @@ traefik:
   acmeEmail: ori@uumpa.com
   sparkHostsRule: "Host: spark.staging.midburn.org;"
   loadBalancerIP: "35.226.236.40"
+  rootDomain: staging.midburn.org
+  enableVolunteers: true
 
 spark:
   serverUrl: https://spark.staging.midburn.org/
@@ -31,3 +33,11 @@ spark:
   mailserverFrom: support@spark.staging.midburn.org
   mailserverHost: in-v3.mailjet.com
   mailserverPort: 2525
+
+nginx:
+  htpasswdSecretName: nginx-htpasswd
+
+volunteers:
+  ENVIRONMENT: staging
+  SPARK_HOST: https://spark.staging.midburn.org
+  jwtSecretName: volunteers-jwt

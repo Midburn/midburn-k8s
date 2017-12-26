@@ -1,0 +1,55 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: volunteers
+spec:
+  ports:
+  - name: '8000'
+    port: 8000
+  selector:
+    app: volunteers
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: volunteers
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: volunteers
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: volunteers
+        image: {{ .Values.image | quote }}
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 20m
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.ENVIRONMENT | quote }}
+        - name: PORT
+          value: "8000"
+        - name: DB_URL
+          value: mongodb://volunteersdb/volunteers
+        - name: SPARK_HOST
+          value: {{ .Values.SPARK_HOST | quote }}
+        {{ if .Values.jwtSecretName }}
+        - name: SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.jwtSecretName | quote }}
+              key: SECRET
+        {{ else }}
+        - name: SECRET
+          value: secret
+        {{ end }}
+        - name: JWT_KEY
+          value: authToken
+{{ end }}

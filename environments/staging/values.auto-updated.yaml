@@ -2,3 +2,5 @@ global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
   image: gcr.io/uumpa123/spark:de4270098855cc98b6c757f515b622aa3bbb44ed
+volunteers:
+  image: gcr.io/uumpa123/volunteers:bc2009bc52aa45a38629afe27faa8914e62cd671

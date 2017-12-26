@@ -1,0 +1,34 @@
+{{ if .Values.adminer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongoexpress
+spec:
+  selector:
+    app: mongoexpress
+  ports:
+  - port: 8081
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongoexpress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongoexpress
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: mongoexpress
+        image: mongoexpress
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            cpu: "0.001"
+            memory: "10Mi"
+{{ end }}

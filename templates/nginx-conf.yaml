@@ -16,6 +16,11 @@ data:
         proxy_pass http://adminer:8080;
         include /etc/nginx/conf.d/restricted.inc;
       }
+
+      location /mongo-express {
+        proxy_pass http://mongoexpress:8081;
+        include /etc/nginx/conf.d/restricted.inc;
+      }
     }
 
   healthcheck.inc: |
