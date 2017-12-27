@@ -1,0 +1,53 @@
+{{ if .Values.enabled }}{{ if .Values.dbBackupJob }}
+apiVersion: batch/v1
+kind: Job
+#apiVersion: batch/v1beta1
+#kind: CronJob
+metadata:
+  name: volunteersdb-backup
+spec:
+#  schedule: "@daily"
+#  concurrencyPolicy: Forbid
+#  jobTemplate:
+#    spec:
+  template:
+    metadata:
+      name: volunteersdb-backup
+    spec:
+      containers:
+      - name: ops
+        image: orihoch/sk8s-ops:mongo@sha256:17b06a6c3aa4e56144438a510e5f4051725516321703374fb53aadbf0ed9904a
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: "10Mi"
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc; source switch_environment.sh "${K8S_ENVIRONMENT}"
+          ! mongodump -hvolunteersdb -omongodump -dvolunteers && echo "failed to get mongodump" && exit 1
+          ! tar -czvf mongodump.tar.gz mongodump && echo "failed to create tar archive" && exit 1
+          ls -lah mongodump.tar.gz
+          EXPORT_URL="gs://midburn-db-dumps/volunteersdb-${K8S_ENVIRONMENT}-mongodump-`date +%Y-%m-%d-%H-%M`.tar.gz"
+          echo "${EXPORT_URL}"
+          ! gsutil cp mongodump.tar.gz "${EXPORT_URL}" && exit 1
+          echo "Great Success!"
+          exit 0
+        env:
+        - name: K8S_ENVIRONMENT
+          value: {{ .Values.global.environmentName }}
+        - name: OPS_REPO_SLUG
+          value: {{ .Values.global.opsRepoSlug }}
+        - name: OPS_REPO_BRANCH
+          value: {{ .Values.global.opsRepoBranch }}
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: {{ .Values.global.k8sOpsSecretName }}
+      restartPolicy: Never
+{{ end }}{{ end }}

@@ -2,6 +2,9 @@ global:
   defaultNodePool: default-pool
   k8sOpsSecretName: midburn-k8s-ops
   k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+  environmentName: staging
+  opsRepoSlug: Midburn/midburn-k8s
+  opsRepoBranch: master
 
 traefik:
   acmeDomains: |
@@ -41,3 +44,6 @@ volunteers:
   ENVIRONMENT: staging
   SPARK_HOST: https://spark.staging.midburn.org
   jwtSecretName: volunteers-jwt
+  dbImportJob:
+    IMPORT_URL: gs://midburn-db-dumps/volunteersdb-mongodump-2017-12-27-18-01.tar.gz
+  dbBackupJob: true

@@ -17,8 +17,8 @@ data:
         include /etc/nginx/conf.d/restricted.inc;
       }
 
-      location /mongo-express {
-        proxy_pass http://mongoexpress:8081;
+      location /volunteers/mongoexpress {
+        proxy_pass http://volunteersmongoexpress:8081;
         include /etc/nginx/conf.d/restricted.inc;
       }
     }

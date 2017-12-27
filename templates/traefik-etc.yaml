@@ -30,9 +30,9 @@ data:
       storage = "/traefic-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
-    {{ if .Values.volunteers.enabled }}{{ if .Values.rootDomain }}
+    {{ if .Values.volunteers.enabled }}{{ if .Values.traefik.rootDomain }}
     [[acme.domains]]
-      main = "volunteers.{{ .Values.rootDomain }}"
+      main = "volunteers.{{ .Values.traefik.rootDomain }}"
     {{ end }}{{ end }}
     {{ end }}
 
@@ -72,12 +72,12 @@ data:
             rule = "{{ .Values.traefik.sparkHostsRule }}"
       {{ end }}
 
-      {{ if .Values.volunteers.enabled }}{{ if .Values.rootDomain }}
+      {{ if .Values.volunteers.enabled }}{{ if .Values.traefik.rootDomain }}
       [frontends.volunteers]
         backend="volunteers"
         passHostHeader = true
           [frontends.volunteers.routes.route1]
-            rule = "Host: volunteers.{{ .Values.rootDomain }};"
+            rule = "Host: volunteers.{{ .Values.traefik.rootDomain }};"
       {{ end }}{{ end }}
 
 {{ end }}

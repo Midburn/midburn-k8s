@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-    echo "Usage: ./helm_upgrade_chart.sh <CHART_NAME>"
+    echo "Usage: ./helm_upgrade_external_chart.sh <EXTERNAL_CHART_NAME>"
 }
 
 CHART_NAME="${1}"
@@ -9,7 +9,8 @@ CHART_NAME="${1}"
 [ -z "${CHART_NAME}" ] && usage && exit 1
 
 RELEASE_NAME="${CHART_NAME}-${K8S_ENVIRONMENT_NAME}"
-CHART_DIRECTORY="charts/${CHART_NAME}"
+EXTERNAL_CHARTS_DIRECTORY="charts-external"
+CHART_DIRECTORY="${EXTERNAL_CHARTS_DIRECTORY}/${CHART_NAME}"
 
 source connect.sh
 
