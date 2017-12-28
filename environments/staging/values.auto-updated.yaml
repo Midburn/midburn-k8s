@@ -3,4 +3,4 @@ global:
 spark:
   image: gcr.io/uumpa123/spark:352e27611ebdd5ab805321d98ae5f3991d4f16ff
 volunteers:
-  image: gcr.io/uumpa123/volunteers:bc2009bc52aa45a38629afe27faa8914e62cd671
+  image: gcr.io/uumpa123/volunteers:23f67104b9c108a847adfcd0ffd40a5804ffc71b
