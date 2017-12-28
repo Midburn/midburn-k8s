@@ -20,3 +20,6 @@ spark:
 
 traefik:
   enabled: true
+
+volunteers:
+  enabled: true

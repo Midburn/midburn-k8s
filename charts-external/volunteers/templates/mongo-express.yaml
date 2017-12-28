@@ -1,0 +1,41 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: volunteersmongoexpress
+spec:
+  selector:
+    app: volunteersmongoexpress
+  ports:
+  - port: 8081
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: volunteersmongoexpress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: volunteersmongoexpress
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: mongoexpress
+        image: mongo-express
+        env:
+        - name: ME_CONFIG_MONGODB_SERVER
+          value: volunteersdb
+        - name: ME_CONFIG_MONGODB_ENABLE_ADMIN
+          value: "true"
+        - name: ME_CONFIG_SITE_BASEURL
+          value: /volunteers/mongoexpress/
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            cpu: "0.001"
+            memory: "10Mi"
+{{ end }}

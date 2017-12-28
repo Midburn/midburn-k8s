@@ -1,0 +1,32 @@
+{{ if .Values.enabled }}{{ if .Values.dbImportJob }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: volunteersdb-import-job
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      name: volunteersdb-import-job
+    spec:
+      containers:
+      - name: ops
+        image: orihoch/sk8s-ops:mongo
+        command:
+        - bash
+        - "-c"
+        - |
+          [ -z "${IMPORT_URL}" ] && echo "Missing IMPORT_URL" && exit 1
+          ! gsutil cp "${IMPORT_URL}" /mongodump.tar.gz && echo "Failed to download IMPORT_URL: ${IMPORT_URL}" && exit 1
+          ! tar -xzvf /mongodump.tar.gz && echo "Failed to extract dump" && exit 1
+          du -h mongodump
+          ! mongorestore -hvolunteersdb mongodump && echo "Failed mongorestore" && exit 1
+          echo "Great Success!"
+          exit 0
+        env:
+        - name: IMPORT_URL
+          value: {{ .Values.dbImportJob.IMPORT_URL | quote }}
+      restartPolicy: Never
+  backoffLimit: 4
+{{ end }}{{ end }}

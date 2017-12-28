@@ -1,35 +1,50 @@
-# ori-staging environment values
-
 global:
   defaultNodePool: default-pool
-  debug: true
   k8sOpsSecretName: midburn-k8s-ops
   k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+  environmentName: staging
+  opsRepoSlug: Midburn/midburn-k8s
+  opsRepoBranch: master
 
 traefik:
   acmeDomains: |
     [[acme.domains]]
-      main = "spark.midburn-staging.uumpa.com"
+      main = "spark.staging.midburn.org"
     [[acme.domains]]
-      main = "midburn-staging.uumpa.com"
+      main = "staging.midburn.org"
   acmeEmail: ori@uumpa.com
-  sparkHostsRule: "Host: spark.midburn-staging.uumpa.com;"
+  sparkHostsRule: "Host: spark.staging.midburn.org;"
+  loadBalancerIP: "35.226.236.40"
+  rootDomain: staging.midburn.org
+  enableVolunteers: true
+  nodeHostName: gke-midburn-default-pool-e041914f-3hl8
 
 spark:
-  serverUrl: https://spark.midburn-staging.uumpa.com/
+  serverUrl: https://spark.staging.midburn.org/
 
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
 
   # import database from old spark staging
-  dbImportJobSuffix: "2017-12-16-08-10"
-  dbImportUrl: gs://uumpa-midburn-db-dumps/spark-staging-db-dump-2017-12-16-08-10.sql
-  dbImportOpsImage: orihoch/midburn-k8s@sha256:071a81a89485e05a847c84b0c9a2f2c489358664af063aa81a15311909f01261
+  dbImportJob:
+    IMPORT_URL: gs://uumpa-midburn-db-dumps/spark-staging-db-dump-2017-12-16-08-10.sql
+  dbBackupJob: true
 
   # Mail - using Ori's Mailjet account
   disableMailtrap: "true"
   secureMailserverSecretName: spark-mail
-  mailserverFrom: support@midburn-staging.uumpa.com
+  mailserverFrom: support@spark.staging.midburn.org
   mailserverHost: in-v3.mailjet.com
   mailserverPort: 2525
+
+nginx:
+  htpasswdSecretName: nginx-htpasswd
+
+volunteers:
+  ENVIRONMENT: staging
+  SPARK_HOST: https://spark.staging.midburn.org
+  jwtSecretName: volunteers-jwt
+  dbImportJob:
+    IMPORT_URL: gs://midburn-db-dumps/volunteersdb-mongodump-2017-12-27-18-01.tar.gz
+  dbBackupJob: true

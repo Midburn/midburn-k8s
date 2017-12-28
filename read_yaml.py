@@ -12,4 +12,6 @@ def get_from_dict(values, keys):
     else:
         return values[keys[0]]
 
-print(get_from_dict(values, sys.argv[2:]))
+
+print(json.dumps(get_from_dict(values, sys.argv[2:]), separators=(',', ':')))
+

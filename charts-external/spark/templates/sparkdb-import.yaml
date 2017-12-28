@@ -1,18 +1,16 @@
-{{ if .Values.enabled }}{{ if .Values.dbImportJobSuffix }}
+{{ if .Values.enabled }}{{ if .Values.dbImportJob }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: sparkdb-import-{{ .Values.dbImportJobSuffix }}
+  name: sparkdb-import
 spec:
-  completions: 1
-  parallelism: 1
   template:
     metadata:
-      name: sparkdb-import-{{ .Values.dbImportJobSuffix }}
+      name: sparkdb-import
     spec:
       containers:
       - name: sparkdb-import
-        image: {{ .Values.dbImportOpsImage | quote }}
+        image: orihoch/sk8s-ops:mysql
         command:
         - bash
         - "-c"
@@ -26,7 +24,7 @@ spec:
           echo "Great Success!"
         env:
         - name: IMPORT_URL
-          value: {{ .Values.dbImportUrl | quote }}
+          value: {{ .Values.dbImportJob.IMPORT_URL | quote }}
         - name: MYSQL_ROOT_PASSWORD
           {{ if .Values.rootSecretName }}
           valueFrom:
@@ -37,5 +35,4 @@ spec:
           value: "123456"
           {{ end }}
       restartPolicy: Never
-  backoffLimit: 4
 {{ end }}{{ end }}
