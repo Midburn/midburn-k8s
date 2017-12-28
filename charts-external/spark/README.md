@@ -1,4 +1,4 @@
-# Spark Helm sub-chart
+# Spark Helm chart
 
 Contains the Spark web-app, DB and associated scripts
 
