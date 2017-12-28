@@ -1,0 +1,64 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark
+data:
+  #### DB configuration ####
+  SPARK_DB_CLIENT: mysql
+  SPARK_DB_HOSTNAME: sparkdb
+  SPARK_DB_DEBUG: "false"
+  {{ if .Values.allowPopulateDB }}
+  ALLOW_POPULATE_DB: "yes"
+  {{ end }}
+
+  #### App configuration ####
+  SPARK_SERVER_PORT: "3000"
+  SPARK_SERVER_HOSTNAME: localhost
+  SPARK_SERVER_PROTOCOL: http
+  SPARK_SERVER_URL: {{ .Values.serverUrl | quote }}
+  SPARK_RECAPTCHA_IGNORE: "true"
+  {{ if .Values.nodeEnv }}
+  NODE_ENV: {{ .Values.nodeEnv | quote }}
+  {{ end }}
+
+  #### Mail configuration ####
+  {{ if .Values.secureMailserverSecretName }}
+  SPARK_MAILSERVER_ENABLE: "true"
+  SPARK_MAILSERVER_SECURE_CONNECTION: "true"
+  SPARK_MAILSERVER_METHOD: SMTP
+  SPARK_MAILSERVER_FROM: {{ .Values.mailserverFrom | quote }}
+  SPARK_MAILSERVER_HOST: {{ .Values.mailserverHost | quote }}
+  SPARK_MAILSERVER_PORT: {{ .Values.mailserverPort | quote }}
+  {{ else }}
+  SPARK_MAILSERVER_ENABLE: "false"
+  {{ end }}
+
+  # PAYMENTS CONFIGURATIONS
+  SPARK_ICREDIT_URL: ""
+  SPARK_ICREDIT_PRIVATETOKEN: ""
+
+  # FACEBOOK APP INTEGRATION
+  SPARK_FACEBOOK_APP: "1083906121721925"
+  SPARK_FACEBOOK_CALLBACK: {{ .Values.facebookCallback | default "http://localhost:3000" | quote }}
+
+  # RECAPTCHA
+  {{ if not .Values.recaptchaSecretName }}
+  SPARK_RECAPTCHA_IGNORE: "true"
+  {{ end }}
+
+  # DRUPAL
+  {{ if .Values.drupalSecretName }}
+  USE_DRUPAL_CACHE: "true"
+  {{ if .Values.drupalTicketSyncEveryXMinutes }}
+  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: {{ .Values.drupalTicketSyncEveryXMinutes | quote }}
+  {{ end }}
+  DRUPAL_PROFILE_API_URL: {{ .Values.drupalProfileApiURL | quote }}
+  DRUPAL_PROFILE_API_USER: {{ .Values.drupalProfileApiUser | quote }}
+  {{ end }}
+
+  # VOLUNTEERS
+  {{ if .Values.volunteersBaseUrl }}
+  VOLUNTEERS_BASE_URL: {{ .Values.volunteersBaseUrl | quote }}
+  {{ end }}
+{{ end }}
