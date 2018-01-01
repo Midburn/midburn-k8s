@@ -42,6 +42,9 @@ spark:
   drupalSecretName: spark-drupal
   drupalProfileApiURL: https://profile.midburn.org
   drupalProfileApiUser: spark@midburn.org
+  
+  # Volunteers
+  volunteersBaseUrl: https://volunteers.staging.midburn.org
 
 nginx:
   htpasswdSecretName: nginx-htpasswd
