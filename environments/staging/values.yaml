@@ -37,6 +37,11 @@ spark:
   mailserverFrom: support@spark.staging.midburn.org
   mailserverHost: in-v3.mailjet.com
   mailserverPort: 2525
+  
+  # Drupal
+  drupalSecretName: spark-drupal
+  drupalProfileApiURL: https://profile.midburn.org
+  drupalProfileApiUser: spark@midburn.org
 
 nginx:
   htpasswdSecretName: nginx-htpasswd
