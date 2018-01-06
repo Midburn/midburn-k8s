@@ -19,10 +19,10 @@ script:
       chmod +x run_docker_ops.sh
       ! ./run_docker_ops.sh "${K8S_ENVIRONMENT_NAME}" "
          RES=0;
-         ! ./helm_upgrade.sh && echo "failed helm upgrade" && RES=1;
-         ! ./helm_upgrade_external_chart.sh spark && echo "failed spark upgrade" && RES=1;
-         ! ./helm_upgrade_external_chart.sh volunteers && echo "failed volunteers upgrade" && RES=1;
+         ! ./helm_upgrade.sh && echo 'failed helm upgrade' && RES=1;
+         ! ./helm_upgrade_external_chart.sh spark && echo 'failed spark upgrade' && RES=1;
+         ! ./helm_upgrade_external_chart.sh volunteers && echo 'failed volunteers upgrade' && RES=1;
          exit "'$'"RES
-      " "orihoch/sk8s-ops" "${OPS_REPO_SLUG}" "${OPS_REPO_BRANCH}" "" "" \
-          && echo 'failed to run docker ops' && exit 1
+      " "orihoch/sk8s-ops" "${OPS_REPO_SLUG}" "${OPS_REPO_BRANCH}" \
+          && echo "failed to run docker ops" && exit 1
   fi

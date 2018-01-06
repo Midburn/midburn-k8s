@@ -100,3 +100,4 @@ ENV/
 /.env
 .idea
 secret*
+run_docker_ops.sh
