@@ -24,7 +24,7 @@ traefik:
   # gcloud compute addresses describe midburn-production-traefik --region=us-central1 | grep ^address:
   loadBalancerIP: "35.224.208.240"
   enableVolunteers: true
-  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
+#  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
 
 spark:

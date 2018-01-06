@@ -1,33 +1,44 @@
 global:
   defaultNodePool: default-pool
-  k8sOpsSecretName: midburn-k8s-ops
+  k8sOpsSecretName: ops
   k8sOpsImage: gcr.io/uumpa123/midburn-k8s
   environmentName: staging
   opsRepoSlug: Midburn/midburn-k8s
   opsRepoBranch: master
+  googleProjectId: midbarrn
+  projectName: midburn
 
 traefik:
+  enabled: true
   acmeDomains: |
     [[acme.domains]]
       main = "spark.staging.midburn.org"
     [[acme.domains]]
       main = "staging.midburn.org"
+    [[acme.domains]]
+      main = "volunteers.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   sparkHostsRule: "Host: spark.staging.midburn.org;"
-  loadBalancerIP: "35.226.236.40"
+  volunteersHostsRule: "Host: volunteers.staging.midburn.org;"
+  # gcloud compute addresses create midburn-staging-traefik --region=us-central1
+  # gcloud compute addresses describe midburn-staging-traefik --region=us-central1 | grep ^address:
+  loadBalancerIP: "35.225.81.109"
   enableVolunteers: true
-  nodeHostName: gke-midburn-default-pool-e041914f-3hl8
+#  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
+  backupJob: true
 
 spark:
+#  nodeEnv: production
+
   serverUrl: https://spark.staging.midburn.org/
 
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
 
-  # import database from old spark staging
+  # import database from spark production
   dbImportJob:
-    IMPORT_URL: gs://uumpa-midburn-db-dumps/spark-staging-db-dump-2017-12-16-08-10.sql
+    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-production-dump-2018-01-06-12-16.sql
   dbBackupJob: true
 
   # Mail - using Ori's Mailjet account
@@ -36,12 +47,13 @@ spark:
   mailserverFrom: support@spark.staging.midburn.org
   mailserverHost: in-v3.mailjet.com
   mailserverPort: 2525
-  
+
   # Drupal
   drupalSecretName: spark-drupal
   drupalProfileApiURL: https://profile.midburn.org
   drupalProfileApiUser: spark@midburn.org
-  
+  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
+
   # Volunteers
   volunteersBaseUrl: https://volunteers.staging.midburn.org
 
@@ -52,5 +64,5 @@ volunteers:
   ENVIRONMENT: staging
   SPARK_HOST: https://spark.staging.midburn.org
   dbImportJob:
-    IMPORT_URL: gs://midburn-db-dumps/volunteersdb-mongodump-2017-12-27-18-01.tar.gz
+    IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-production-mongodump-2018-01-06-12-21.tar.gz
   dbBackupJob: true
