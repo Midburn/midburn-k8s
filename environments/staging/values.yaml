@@ -15,7 +15,6 @@ traefik:
   acmeEmail: ori@uumpa.com
   sparkHostsRule: "Host: spark.staging.midburn.org;"
   loadBalancerIP: "35.226.236.40"
-  rootDomain: staging.midburn.org
   enableVolunteers: true
   nodeHostName: gke-midburn-default-pool-e041914f-3hl8
 
@@ -52,7 +51,6 @@ nginx:
 volunteers:
   ENVIRONMENT: staging
   SPARK_HOST: https://spark.staging.midburn.org
-  jwtSecretName: volunteers-jwt
   dbImportJob:
     IMPORT_URL: gs://midburn-db-dumps/volunteersdb-mongodump-2017-12-27-18-01.tar.gz
   dbBackupJob: true

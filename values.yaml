@@ -12,7 +12,7 @@ nginx:
   enabled: true
 
 ops:
-  enabled: true
+  enabled: false
 
 spark:
   enabled: true

@@ -1,61 +1,27 @@
-{{ if .Values.enabled }}
-apiVersion: v1
-kind: Service
-metadata:
-  name: spark
-spec:
-  ports:
-  - name: '3000'
-    port: 3000
-  selector:
-    app: spark
----
+{{ if .Values.enabled }}{{ if .Values.DRUPAL_TICKET_SYNC_EVERY_X_MINUTES }}
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: spark
+  name: spark-drupal-sync
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: spark
+        app: spark-drupal-sync
     spec:
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
-      initContainers:
-      - name: migrations
-        image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}
-        command:
-        - bash
-        - "-c"
-        - |
-          knex migrate:latest
-        resources:
-          requests:
-            cpu: "0.001"
-            memory: "10Mi"
-        envFrom: [{"configMapRef": {"name": "spark"}}]
-        env:
-        {{ if .Values.appSecretName }}
-        - {"name": "SPARK_DB_DBNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
-        - {"name": "SPARK_DB_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_USER"}}}
-        - {"name": "SPARK_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_PASSWORD"}}}
-        {{ else }}
-        - {"name": "SPARK_DB_DBNAME", "value": "spark"}
-        - {"name": "SPARK_DB_USER", "value": "spark"}
-        - {"name": "SPARK_DB_PASSWORD", "value": "spark"}
-        {{ end }}
       containers:
       - name: spark
         image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}
-        ports:
-        - containerPort: 3000
         resources:
           requests:
             cpu: 20m
         envFrom: [{"configMapRef": {"name": "spark"}}]
         env:
+        - name: DRUPAL_TICKET_SYNC_EVERY_X_MINUTES
+          value: {{ .Values.DRUPAL_TICKET_SYNC_EVERY_X_MINUTES | quote }}
         {{ if .Values.appSecretName }}
         - {"name": "SPARK_DB_DBNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
         - {"name": "SPARK_DB_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_USER"}}}
@@ -84,4 +50,4 @@ spec:
             secretKeyRef:
               name: spark-secret-token
               key: SPARK_SECRET_TOKEN
-{{ end }}
+{{ end }}{{ end }}

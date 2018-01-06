@@ -25,22 +25,16 @@ spec:
             - bash
             - "-c"
             - |
-              source ~/.bashrc; source switch_environment.sh "${K8S_ENVIRONMENT}"
+              source ~/.bashrc;
+              EXPORT_URL="gs://{{ .Values.global.projectName }}-k8s-backups/sparkdb-{{ .Values.global.environmentName }}-dump-`date +%Y-%m-%d-%H-%M`.sql"
+              echo "EXPORT_URL=${EXPORT_URL}"
+              gcloud config set project "{{ .Values.global.googleProjectId }}" &&\
               mysqldump --host=sparkdb --port=3306 --protocol=tcp --user=root "--password=${MYSQL_ROOT_PASSWORD}" \
-                        --all-databases > "dump.sql"
-              ls -lah dump.sql
-              EXPORT_URL="gs://midburn-db-dumps/sparkdb-${K8S_ENVIRONMENT}-dump-`date +%Y-%m-%d-%H-%M`.sql"
-              echo "${EXPORT_URL}"
-              ! gsutil cp dump.sql "${EXPORT_URL}" && exit 1
+                        --all-databases > "dump.sql" &&\
+              ls -lah dump.sql &&\
+              gsutil cp dump.sql "${EXPORT_URL}" &&\
               echo "Great Success!"
-              exit 0
             env:
-            - name: K8S_ENVIRONMENT
-              value: {{ .Values.global.environmentName }}
-            - name: OPS_REPO_SLUG
-              value: {{ .Values.global.opsRepoSlug }}
-            - name: OPS_REPO_BRANCH
-              value: {{ .Values.global.opsRepoBranch }}
             - name: MYSQL_ROOT_PASSWORD
               {{ if .Values.rootSecretName }}
               valueFrom:
@@ -57,6 +51,6 @@ spec:
           volumes:
           - name: k8s-ops
             secret:
-              secretName: {{ .Values.global.k8sOpsSecretName }}
+              secretName: ops
           restartPolicy: Never
 {{ end }}{{ end }}

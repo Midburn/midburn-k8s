@@ -50,9 +50,7 @@ data:
   # DRUPAL
   {{ if .Values.drupalSecretName }}
   USE_DRUPAL_CACHE: "true"
-  {{ if .Values.drupalTicketSyncEveryXMinutes }}
-  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: {{ .Values.drupalTicketSyncEveryXMinutes | quote }}
-  {{ end }}
+#  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: {{ .Values.drupalTicketSyncEveryXMinutes | quote }}
   DRUPAL_PROFILE_API_URL: {{ .Values.drupalProfileApiURL | quote }}
   DRUPAL_PROFILE_API_USER: {{ .Values.drupalProfileApiUser | quote }}
   {{ end }}

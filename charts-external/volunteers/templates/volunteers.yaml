@@ -40,16 +40,11 @@ spec:
           value: mongodb://volunteersdb/volunteers
         - name: SPARK_HOST
           value: {{ .Values.SPARK_HOST | quote }}
-        {{ if .Values.jwtSecretName }}
         - name: SECRET
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.jwtSecretName | quote }}
-              key: SECRET
-        {{ else }}
-        - name: SECRET
-          value: secret
-        {{ end }}
+              name: spark-secret-token
+              key: SPARK_SECRET_TOKEN
         - name: JWT_KEY
           value: authToken
 {{ end }}

@@ -1,37 +1,68 @@
-# production environment values
-
 global:
-  defaultNodePool: production-1
-  debug: false
+  defaultNodePool: default-pool
+  k8sOpsSecretName: ops
+  k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+  environmentName: production
+  opsRepoSlug: Midburn/midburn-k8s
+  opsRepoBranch: master
+  googleProjectId: midbarrn
+  projectName: midburn
 
 traefik:
+  enabled: true
   acmeDomains: |
     [[acme.domains]]
-      main = "k8s.midburn.org"
-    [[acme.domains]]
       main = "spark.midburn.org"
-  acmeEmail: support@midburn.org
+    [[acme.domains]]
+      main = "production.midburn.org"
+    [[acme.domains]]
+      main = "volunteers.spark.midburn.org"
+  acmeEmail: ori@uumpa.com
   sparkHostsRule: "Host: spark.midburn.org;"
+  volunteersHostsRule: "Host: volunteers.spark.midburn.org;"
+  # gcloud compute addresses create midburn-production-traefik --region=us-central1
+  # gcloud compute addresses describe midburn-production-traefik --region=us-central1 | grep ^address:
+  loadBalancerIP: "35.224.208.240"
+  enableVolunteers: true
+#  nodeHostName: gke-midburn-default-pool-e041914f-3hl8
+#  backupJob: true
 
 spark:
-  # App
-  serverUrl: https://spark.midburn.org/
   nodeEnv: production
+
+  serverUrl: https://spark.midburn.org/
+
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
-  # Mail
+
+  # import database from old spark production
+  dbImportJob:
+    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-old-production-dump-2018-01-06-12-04.sql
+  dbBackupJob: true
+
+  # Mail - using Ori's Mailjet account
+  disableMailtrap: "true"
   secureMailserverSecretName: spark-mail
-  mailserverFrom: support@midburn.org
-  mailserverHost: email-smtp.eu-west-1.amazonaws.com
-  mailserverPort: 465
+  mailserverFrom: support@spark.staging.midburn.org
+  mailserverHost: in-v3.mailjet.com
+  mailserverPort: 2525
+
   # Drupal
   drupalSecretName: spark-drupal
   drupalProfileApiURL: https://profile.midburn.org
   drupalProfileApiUser: spark@midburn.org
+  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
+
   # Volunteers
-  volunteersBaseUrl: http://volunteers.spark.midburn.org
-#  # Facebook
-#  facebookSecretName: spark-facebook
-  # Recaptcha
-  recaptchaSecretName: spark-recaptcha
+  volunteersBaseUrl: https://volunteers.spark.midburn.org
+
+nginx:
+  htpasswdSecretName: nginx-htpasswd
+
+volunteers:
+  ENVIRONMENT: production
+  SPARK_HOST: https://spark.midburn.org
+  dbImportJob:
+    IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
+  dbBackupJob: true

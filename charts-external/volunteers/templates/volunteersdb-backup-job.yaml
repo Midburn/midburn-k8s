@@ -25,22 +25,15 @@ spec:
             - bash
             - "-c"
             - |
-              source ~/.bashrc; source switch_environment.sh "${K8S_ENVIRONMENT}"
-              ! mongodump -hvolunteersdb -omongodump -dvolunteers && echo "failed to get mongodump" && exit 1
-              ! tar -czvf mongodump.tar.gz mongodump && echo "failed to create tar archive" && exit 1
-              ls -lah mongodump.tar.gz
-              EXPORT_URL="gs://midburn-db-dumps/volunteersdb-${K8S_ENVIRONMENT}-mongodump-`date +%Y-%m-%d-%H-%M`.tar.gz"
-              echo "${EXPORT_URL}"
-              ! gsutil cp mongodump.tar.gz "${EXPORT_URL}" && exit 1
+              source ~/.bashrc
+              EXPORT_URL="gs://{{ .Values.global.projectName }}-k8s-backups/volunteersdb-{{ .Values.global.environmentName }}-mongodump-`date +%Y-%m-%d-%H-%M`.tar.gz"
+              echo "EXPORT_URL=${EXPORT_URL}"
+              gcloud config set project "{{ .Values.global.googleProjectId }}" &&\
+              mongodump -hvolunteersdb -omongodump -dvolunteers &&\
+              tar -czvf mongodump.tar.gz mongodump &&\
+              ls -lah mongodump.tar.gz &&\
+              gsutil cp mongodump.tar.gz "${EXPORT_URL}" &&\
               echo "Great Success!"
-              exit 0
-            env:
-            - name: K8S_ENVIRONMENT
-              value: {{ .Values.global.environmentName }}
-            - name: OPS_REPO_SLUG
-              value: {{ .Values.global.opsRepoSlug }}
-            - name: OPS_REPO_BRANCH
-              value: {{ .Values.global.opsRepoBranch }}
             volumeMounts:
             - name: k8s-ops
               mountPath: /k8s-ops
@@ -48,6 +41,6 @@ spec:
           volumes:
           - name: k8s-ops
             secret:
-              secretName: {{ .Values.global.k8sOpsSecretName }}
+              secretName: ops
           restartPolicy: Never
 {{ end }}{{ end }}

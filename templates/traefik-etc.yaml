@@ -27,13 +27,9 @@ data:
     # let's encrypt automatic ssl certificate issue and renewal
     [acme]
       email = {{ .Values.traefik.acmeEmail | quote }}
-      storage = "/traefic-acme/acme.json"
+      storage = "/traefik-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
-    {{ if .Values.volunteers.enabled }}{{ if .Values.traefik.rootDomain }}
-    [[acme.domains]]
-      main = "volunteers.{{ .Values.traefik.rootDomain }}"
-    {{ end }}{{ end }}
     {{ end }}
 
     [file]
@@ -72,12 +68,12 @@ data:
             rule = "{{ .Values.traefik.sparkHostsRule }}"
       {{ end }}
 
-      {{ if .Values.volunteers.enabled }}{{ if .Values.traefik.rootDomain }}
+      {{ if .Values.volunteers.enabled }}
       [frontends.volunteers]
         backend="volunteers"
         passHostHeader = true
           [frontends.volunteers.routes.route1]
-            rule = "Host: volunteers.{{ .Values.traefik.rootDomain }};"
-      {{ end }}{{ end }}
+            rule = "{{ .Values.traefik.volunteersHostsRule }}"
+      {{ end }}
 
 {{ end }}
