@@ -3,4 +3,4 @@ global:
 spark:
   image: gcr.io/midbarrn/midburn-spark:4da017ab8c2b4d17b28a280f6796f3d5bcaa58b3
 volunteers:
-  image: gcr.io/midbarrn/midburn-volunteers:9da9a2a2a0e41ff620fba56918605f8037c09b8e
+  image: gcr.io/midbarrn/midburn-volunteers-cd:cb54f647936cbe1a3142217c162caf2bdf864fb2
