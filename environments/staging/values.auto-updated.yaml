@@ -1,6 +1,6 @@
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
-  image: gcr.io/midbarrn/midburn-spark-cd:32ac83cce2b0a7522d4402c0a17417ec20842709
+  image: gcr.io/midbarrn/midburn-spark-cd:14b08940a6ef9d761f2d7dcf608b5ffb96169c2a
 volunteers:
   image: gcr.io/midbarrn/midburn-volunteers-cd:3d0d8616ee76bb8866b2018271ab6564209e8409
