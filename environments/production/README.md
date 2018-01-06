@@ -4,7 +4,7 @@
 
 * Spark - https://spark.midburn.org/
 * Adminer - https://production.midburn.org/adminer
-* Volunteers - https://volunteers.midburn.org/
+* Volunteers - https://volunteers.spark.midburn.org/
 * Volunteers DB UI - https://production.midburn.org/volunteers/mongoexpress
 
 ## Secrets
