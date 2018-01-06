@@ -2,8 +2,8 @@
 
 ## Main entrypoints
 
-* Spark - https://spark.midburn-staging.uumpa.com/
-* Adminer - https://midburn-staging.uumpa.com/adminer
+* Spark - https://spark.staging.midburn.org/
+* Adminer - https://staging.midburn.org/adminer
 * Volunteers - https://volunteers.staging.midburn.org/
 * Volunteers DB UI - https://staging.midburn.org/volunteers/mongoexpress
 
