@@ -23,14 +23,15 @@ spec:
     spec:
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
-      initContainers:
+      containers:
       - name: migrations
         image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}
         command:
         - bash
         - "-c"
         - |
-          knex migrate:latest
+          knex migrate:latest && touch /migrations/ran &&\
+          while true; do sleep 86400; done
         resources:
           requests:
             cpu: "0.001"
@@ -46,11 +47,19 @@ spec:
         - {"name": "SPARK_DB_USER", "value": "spark"}
         - {"name": "SPARK_DB_PASSWORD", "value": "spark"}
         {{ end }}
-      containers:
+        volumeMounts:
+        - name: migrations
+          mountPath: /migrations
       - name: spark
         image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}
         ports:
         - containerPort: 3000
+        command:
+        - bash
+        - "-c"
+        - |
+          while ! [ -e /migrations/ran ]; do sleep 5 && echo "waiting for migrations..."; done && rm -f /migrations/ran &&\
+          /home/spark/entrypoint.sh
         resources:
           requests:
             cpu: 20m
@@ -84,4 +93,18 @@ spec:
             secretKeyRef:
               name: spark-secret-token
               key: SPARK_SECRET_TOKEN
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - curl -L localhost:3000 | grep midburn
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: migrations
+          mountPath: /migrations
+      volumes:
+      - name: migrations
+        emptyDir: {}
 {{ end }}
