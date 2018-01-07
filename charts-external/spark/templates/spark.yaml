@@ -65,10 +65,12 @@ spec:
         - |
           while true; do
             if [ -e /migrations/ran ]; then
+              rm -f /migrations/ran
               /home/spark/entrypoint.sh
               exit 0
             elif [ -e /migrations/failed ]; then
               echo "migrations failed"
+              rm -f /migrations/failed
               exit 1
             fi
             echo "waiting for migrations..."
