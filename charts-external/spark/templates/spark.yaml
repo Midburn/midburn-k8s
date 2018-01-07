@@ -30,8 +30,13 @@ spec:
         - bash
         - "-c"
         - |
-          knex migrate:latest && touch /migrations/ran &&\
-          while true; do sleep 86400; done
+          if knex migrate:latest; then
+            touch /migrations/ran;
+            while true; do sleep 86400; done
+          else
+            touch /migrations/failed
+            exit 1
+          fi
         resources:
           requests:
             cpu: "0.001"
@@ -58,8 +63,17 @@ spec:
         - bash
         - "-c"
         - |
-          while ! [ -e /migrations/ran ]; do sleep 5 && echo "waiting for migrations..."; done && rm -f /migrations/ran &&\
-          /home/spark/entrypoint.sh
+          while true; do
+            if [ -e /migrations/ran ]; then
+              /home/spark/entrypoint.sh
+              exit 0
+            elif [ -e /migrations/failed ]; then
+              echo "migrations failed"
+              exit 1
+            fi
+            echo "waiting for migrations..."
+            sleep 5
+          done
         resources:
           requests:
             cpu: 20m
