@@ -131,7 +131,7 @@ spec:
               - '-c'
               - |
                 curl -X POST --data-urlencode \
-                "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running!\", \"icon_emoji\": \":ghost:\"}" \
+                "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running! Hostname: $(hostname)\", \"icon_emoji\": \":ghost:\"}" \
                 $SLACK_DEPLOY_WEBHOOK
             {{ end }}
         volumeMounts:
