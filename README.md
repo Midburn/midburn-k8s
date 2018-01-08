@@ -52,24 +52,7 @@ Make sure you are connected to the correct environment before running any of the
 
 
 ## Releases and deployments
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tiller
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: tiller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: tiller
-    namespace: kube-system
+
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
 
 Notes regarding deployment to the main, shared environments (`staging` / `production`):
