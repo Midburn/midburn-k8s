@@ -52,7 +52,24 @@ Make sure you are connected to the correct environment before running any of the
 
 
 ## Releases and deployments
-
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: tiller
+    namespace: kube-system
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
 
 Notes regarding deployment to the main, shared environments (`staging` / `production`):
@@ -62,7 +79,12 @@ Notes regarding deployment to the main, shared environments (`staging` / `produc
 
 If you still want to deploy directly, just make sure you are the only one working on the environment and/or update with the master branch to prevent infrastructure conflicts.
 
-Make sure you have the latest helm installed on both client and server: `helm init --upgrade`
+Make sure you have the latest helm installed on both client and server: 
+
+```
+kubectl create -f rbac-config.yaml
+helm init --service-account tiller
+```
 
 Deploy:
 
