@@ -109,6 +109,11 @@ spec:
             secretKeyRef:
               name: spark-secret-token
               key: SPARK_SECRET_TOKEN
+        - name: SLACK_DEPLOY_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: slack-deploy-webhook
+              key: SLACK_DEPLOY_WEBHOOK
         readinessProbe:
           exec:
             command:
@@ -117,6 +122,12 @@ spec:
             - curl -L localhost:3000 | grep midburn
           initialDelaySeconds: 5
           periodSeconds: 5
+        lifecycle:
+          postStart:
+            exec:
+            {{ if .Values.enableSlackNotification }}
+              command: ['bash', '-c', 'curl -X POST --data-urlencode "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running!\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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']
+            {{ end }}
         volumeMounts:
         - name: migrations
           mountPath: /migrations
