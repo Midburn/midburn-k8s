@@ -130,8 +130,9 @@ spec:
               - 'bash'
               - '-c'
               - |
+                PACKAGE_VERSION=$(node -p "require('./package.json').version")
                 curl -X POST --data-urlencode \
-                "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running! Hostname: $(hostname) Commit: {{ .Values.image }}\", \"icon_emoji\": \":ghost:\"}" \
+                "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running! Hostname: $(hostname) Version: $(PACKAGE_VERSION) Env: {{ .Values.global.environmentName }} Commit: {{ .Values.image }}\", \"icon_emoji\": \":ghost:\"}" \
                 $SLACK_DEPLOY_WEBHOOK
             {{ end }}
         volumeMounts:
