@@ -1,0 +1,44 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: profiles-db
+spec:
+  ports:
+  - name: '3306'
+    port: 3306
+  selector:
+    app: profiles-db
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: profiles-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: profiles-db
+    spec:
+      containers:
+      - name: profiles-db
+        image: mysql:5.6
+        ports:
+        - {containerPort: 3306}
+        resources:
+          # based on old amazon server
+          # requests: {cpu: "1500m", memory: "3Gi"}
+          # for testing - use lower values with limits
+          requests: {cpu: "100m", memory: "300Mi"}
+          limits: {cpu: "400m", memory: "800Mi"}
+        {{ if .Values.rootSecretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.rootSecretName | quote }}
+        {{ else }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        {{ end }}
+{{ end }}
