@@ -44,9 +44,6 @@ spec:
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "123456"
-        volumeMounts:
-        - name: var-lib-mysql
-          mountPath: /var/lib/mysql
       - name: ops
         image: orihoch/sk8s-ops:mysql
         resources:
@@ -103,14 +100,10 @@ spec:
           readOnly: true
         - name: state
           mountPath: /state
-        - name: var-lib-mysql
-          mountPath: /var/lib/mysql
       volumes:
       - name: k8s-ops
         secret:
           secretName: ops
       - name: state
-        emptyDir: {}
-      - name: var-lib-mysql
         emptyDir: {}
 {{ end }}
