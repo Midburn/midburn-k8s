@@ -18,7 +18,6 @@ metadata:
   name: profiles-db
 spec:
   replicas: 1
-  strategy: {type: Recreate, rollingUpdate: null}
   template:
     metadata:
       labels:

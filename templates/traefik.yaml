@@ -76,6 +76,18 @@ spec:
         {{ end }}
         args:
         - "--configFile=/etc-traefik/traefik.toml"
+        {{ if eq .Values.traefik.dnsProvider "route53" }}
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: {{ .Values.traefik.AWS_ACCESS_KEY_ID | quote }}
+        - name: AWS_REGION
+          value: {{ .Values.traefik.AWS_REGION | quote }}
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: route53
+              key: AWS_SECRET_ACCESS_KEY
+        {{ end }}
       volumes:
       - name: etc-traefik
         configMap:
