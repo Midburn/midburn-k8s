@@ -9,16 +9,19 @@ global:
   opsRepoBranch: master
   googleProjectId: midbarrn
   projectName: midburn
-  enableRootChart: false
+  enableRootChart: true
 
 traefik:
-  enabled: false
+  enabled: true
+  enableLoadBalancer: false
+  profilesHostsRule: ""
 
 spark:
   enabled: false
 
 nginx:
-  enabled: false
+  enabled: true
+  htpasswdSecretName: nginx-htpasswd
 
 volunteers:
   enabled: false

@@ -9,9 +9,11 @@ spec:
   - {name: '443', port: 443}
   selector:
     app: traefik
+  {{ if .Values.traefik.enableLoadBalancer }}
   type: LoadBalancer
   {{ if .Values.traefik.loadBalancerIP }}
   loadBalancerIP: {{ .Values.traefik.loadBalancerIP | quote }}
+  {{ end }}
   {{ end }}
 ---
 apiVersion: apps/v1beta1
@@ -68,19 +70,23 @@ spec:
         volumeMounts:
         - name: etc-traefik
           mountPath: /etc-traefik
+        {{ if .Values.traefik.acmeEmail }}
         - name: traefik-acme
           mountPath: /traefik-acme
+        {{ end }}
         args:
         - "--configFile=/etc-traefik/traefik.toml"
       volumes:
       - name: etc-traefik
         configMap:
           name: etc-traefik
+      {{ if .Values.traefik.acmeEmail }}
       - name: traefik-acme
         hostPath:
           type: DirectoryOrCreate
           path: /var/{{ .Values.global.projectName }}-traefik-acme-{{ .Values.global.environmentName }}
-      - name: k8s-ops
-        secret:
-          secretName: ops
+      {{ end }}
+#      - name: k8s-ops
+#        secret:
+#          secretName: ops
 {{ end }}

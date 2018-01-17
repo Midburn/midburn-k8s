@@ -27,6 +27,7 @@ traefik:
   enableVolunteers: true
 #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
+  enableLoadBalancer: true
 
 spark:
 #  nodeEnv: production
