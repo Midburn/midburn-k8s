@@ -1,0 +1,44 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: profiles-drupal
+spec:
+  ports:
+  - name: '80'
+    port: 80
+  selector:
+    app: profiles-drupal
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: profiles-drupal
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: profiles-drupal
+    spec:
+      containers:
+      - name: drupal
+        image: {{ .Values.image | quote }}
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 500Mi
+        volumeMounts:
+        - name: drupal-settings
+          mountPath: /opt/bitnami/apps/drupal/htdocs/sites/default/settings.php
+          subPath: drupal_site_default_settings.php
+      volumes:
+      - name: drupal-settings
+        configMap:
+          name: drupal-settings
+{{ end }}

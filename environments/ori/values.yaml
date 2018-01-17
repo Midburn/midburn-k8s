@@ -26,6 +26,8 @@ volunteers:
 profiles:
   enabled: true
   # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
+  # NO trailing slash!
+  # drupalBaseUrl: http://localhost
 
 bi:
   enabled: false
