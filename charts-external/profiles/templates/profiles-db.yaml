@@ -7,6 +7,8 @@ spec:
   ports:
   - name: '3306'
     port: 3306
+  - name: '8080'
+    port: 8080
   selector:
     app: profiles-db
 ---
@@ -16,13 +18,23 @@ metadata:
   name: profiles-db
 spec:
   replicas: 1
+  strategy: {type: Recreate, rollingUpdate: null}
   template:
     metadata:
       labels:
         app: profiles-db
     spec:
+      terminationGracePeriodSeconds: 0
       containers:
-      - name: profiles-db
+      - name: adminer
+        image: adminer
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "0.001"
+            memory: "10Mi"
+      - name: db
         image: mysql:5.6
         ports:
         - {containerPort: 3306}
@@ -31,7 +43,7 @@ spec:
           # requests: {cpu: "1500m", memory: "3Gi"}
           # for testing - use lower values with limits
           requests: {cpu: "100m", memory: "300Mi"}
-          limits: {cpu: "400m", memory: "800Mi"}
+          limits: {cpu: "400m", memory: "1500Mi"}
         {{ if .Values.rootSecretName }}
         envFrom:
         - secretRef:
@@ -41,4 +53,76 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           value: "123456"
         {{ end }}
+        volumeMounts:
+        - name: var-lib-mysql
+          mountPath: /var/lib/mysql
+      - name: ops
+        image: orihoch/sk8s-ops:mysql
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: "10Mi"
+        command:
+        - bash
+        - "-c"
+        - |
+          echo "sleeping 15 seconds to let mysql start"
+          sleep 15
+          source ~/.bashrc
+          RES=0
+          ERRORS=""
+          ! gcloud config set project "{{ .Values.global.googleProjectId }}" && ERRORS+="; failed to set google projectid {{ .Values.global.googleProjectId }}" && RES=1
+          while ! echo "select 1" | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD}; do echo "waiting for mysql..."; sleep 5; done
+          ! echo "create database midburndb;" | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD} \
+            && ERRORS+="; failed to create midburndb" && RES=1
+          echo "IMPORT_URL=${IMPORT_URL}"
+          ! gsutil cp "${IMPORT_URL}" ./dump.sql && ERRORS+="; failed to download sql dump" && RES=1
+          ! cat ./dump.sql | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD} --database midburndb --one-database \
+            && ERRORS+="; Failed mysql import" && RES=1
+          if [ "${RES}" == "0" ]; then
+            echo "Great Success!"
+            touch /state/imported
+            while true; do sleep 86400; done
+          else
+            echo "Failed"
+            echo "${ERRORS}"
+            echo "Waiting 1 day before existing with error - to allow debugging"
+            sleep 86400
+            exit 1
+          fi
+        {{ if .Values.rootSecretName }}
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - [ -e /state/imported ]
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        envFrom:
+        - secretRef:
+            name: {{ .Values.rootSecretName | quote }}
+        {{ else }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        - name: IMPORT_URL
+          value: {{ .Values.dbImportUrl | quote }}
+        {{ end }}
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        - name: state
+          mountPath: /state
+        - name: var-lib-mysql
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: ops
+      - name: state
+        emptyDir: {}
+      - name: var-lib-mysql
+        emptyDir: {}
 {{ end }}
