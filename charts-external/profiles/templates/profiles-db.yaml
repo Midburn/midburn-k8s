@@ -89,7 +89,7 @@ spec:
             command:
             - bash
             - "-c"
-            - [ -e /state/ops_ready ]
+            - "[ -e /state/ops_ready ]"
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
