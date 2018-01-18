@@ -28,6 +28,9 @@ script:
          ! ./helm_upgrade_external_chart.sh volunteers && echo 'failed volunteers upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh bi && echo 'failed bi upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh profiles && echo 'failed profiles upgrade' && RES=1;
+         sleep 2;
+         kubectl get pods --all-namespaces;
+         kubectl get service --all-namespaces;
          exit "'$'"RES
       " "orihoch/sk8s-ops" "${OPS_REPO_SLUG}" "${OPS_REPO_BRANCH}"; then
         true
