@@ -35,6 +35,7 @@ traefik:
 
 spark:
   nodeEnv: production
+  enableSlackNotification: true
 
   serverUrl: https://spark.midburn.org/
 
