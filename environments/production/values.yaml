@@ -8,6 +8,7 @@ global:
   googleProjectId: midbarrn
   projectName: midburn
   enableRootChart: true
+  backupsBucketName: midburn-k8s-backups
 
 traefik:
   enabled: true
@@ -18,6 +19,8 @@ traefik:
       main = "production.midburn.org"
     [[acme.domains]]
       main = "volunteers.spark.midburn.org"
+#    [[acme.domains]]
+#      main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
@@ -40,7 +43,6 @@ traefik:
 spark:
   nodeEnv: production
   enableSlackNotification: true
-
   serverUrl: https://spark.midburn.org/
 
   # DB

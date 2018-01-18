@@ -76,7 +76,7 @@ spec:
           while true; do
             HISTORY_BACKUP="gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/`date +%Y-%m-%d-%H-%M`/"
             echo "HISTORY_BACKUP=${HISTORY_BACKUP}"
-            ! gsutil -m rsync -x '^done|synced$' -r /traefik-acme/ gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/latest/ \
+            ! gsutil -m rsync -x '^done|synced$' -r /traefik-acme/ "${LATEST_BACKUP}" \
               && echo "failed to sync latest backup" && exit 1
             ! gsutil -m rsync -x '^done|synced$' -r /traefik-acme/ "${HISTORY_BACKUP}" \
               && echo "failed to sync ${HISTORY_BACKUP}" && exit 1
