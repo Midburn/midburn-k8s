@@ -2,13 +2,9 @@
 
 source connect.sh
 
-usage() {
-    echo "Usage: ./helm_upgrade_external_chart.sh <EXTERNAL_CHART_NAME>"
-}
-
 CHART_NAME="${1}"
 
-[ -z "${CHART_NAME}" ] && usage && exit 1
+[ -z "${CHART_NAME}" ] && echo "usage:" && echo "./helm_upgrade_external_chart.sh <EXTERNAL_CHART_NAME>" && exit 1
 
 RELEASE_NAME="${K8S_HELM_RELEASE_NAME}-${CHART_NAME}-${K8S_ENVIRONMENT_NAME}"
 EXTERNAL_CHARTS_DIRECTORY="charts-external"
@@ -35,6 +31,26 @@ do
 #    cat "${TEMPDIR}/values.yaml"
 done
 
-helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"
+VALUES=`cat "${TEMPDIR}/values.yaml"`
 
-rm -rf $TEMPDIR
+if [ `./read_yaml.py "${TEMPDIR}/values.yaml" enabled` == "true" ]; then
+    CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
+    if ! $CMD; then
+        echo
+        echo "${TEMPDIR}/values.yaml"
+        echo "${VALUES}"
+        echo
+        echo "CMD"
+        echo "${CMD}"
+        echo
+        echo "helm upgrade failed"
+        exit 1
+    else
+        rm -rf $TEMPDIR
+        echo "Great Success!"
+        exit 0
+    fi
+else
+    echo "chart is disabled, not performing upgrade"
+    exit 0
+fi

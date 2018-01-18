@@ -1,0 +1,9 @@
+global:
+  opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
+profiles:
+  dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db:54e27014eb6ea03b55c73fc2cc16f1fc1730e222
+  image: gcr.io/midbarrn/midburn-profiles-drupal:54e27014eb6ea03b55c73fc2cc16f1fc1730e222
+spark:
+  image: gcr.io/midbarrn/midburn-spark-cd:e763c1d8e3377bf9246062bb2699c4be6f1c4027
+volunteers:
+  image: gcr.io/midbarrn/midburn-volunteers-cd:0812e713b7ae18a8bdf917ff04451df430eced33

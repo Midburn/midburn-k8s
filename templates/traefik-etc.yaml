@@ -7,26 +7,31 @@ data:
   traefik.toml: |
     # https://docs.traefik.io/configuration/commons/
 
-    {{ if .Values.global.debug }}
-    debug = true
-    {{ end }}
+    debug = false
 
     defaultEntryPoints = ["http", "https"]
     
     [entryPoints]
         [entryPoints.http]
           address = ":80"
+          {{ if .Values.traefik.acmeEmail }}
             [entryPoints.http.redirect]
               entryPoint = "https"
-        
+          {{ end }}
+
+        {{ if .Values.traefik.acmeEmail }}
         [entryPoints.https]
           address = ":443"
             [entryPoints.https.tls]
+        {{ end }}
 
     {{ if .Values.traefik.acmeEmail }}
     # let's encrypt automatic ssl certificate issue and renewal
     [acme]
       email = {{ .Values.traefik.acmeEmail | quote }}
+      {{ if .Values.traefik.dnsProvider }}
+      dnsProvider = {{ .Values.traefik.dnsProvider | quote }}
+      {{ end }}
       storage = "/traefik-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
@@ -53,6 +58,12 @@ data:
           url = "http://volunteers:8000"
       {{ end }}
 
+      {{ if .Values.profiles.enabled }}
+      [backends.profiles]
+        [backends.profiles.servers.server1]
+          url = "http://profiles-drupal"
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -74,6 +85,14 @@ data:
         passHostHeader = true
           [frontends.volunteers.routes.route1]
             rule = "{{ .Values.traefik.volunteersHostsRule }}"
+      {{ end }}
+
+      {{ if .Values.profiles.enabled }}
+      [frontends.profiles]
+        backend="profiles"
+        passHostHeader = true
+          [frontends.profiles.routes.route1]
+            rule = "{{ .Values.traefik.profilesHostsRule }}"
       {{ end }}
 
 {{ end }}

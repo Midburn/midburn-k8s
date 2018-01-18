@@ -7,6 +7,8 @@ global:
   opsRepoBranch: master
   googleProjectId: midbarrn
   projectName: midburn
+  enableRootChart: true
+  backupsBucketName: midburn-k8s-backups
 
 traefik:
   enabled: true
@@ -17,7 +19,12 @@ traefik:
       main = "staging.midburn.org"
     [[acme.domains]]
       main = "volunteers.staging.midburn.org"
+    [[acme.domains]]
+      main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
+  dnsProvider: route53
+  AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
+  AWS_REGION: "eu-west-1"
   sparkHostsRule: "Host: spark.staging.midburn.org;"
   volunteersHostsRule: "Host: volunteers.staging.midburn.org;"
   # gcloud compute addresses create midburn-staging-traefik --region=us-central1
@@ -26,6 +33,12 @@ traefik:
   enableVolunteers: true
 #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
+  enableLoadBalancer: true
+  profilesHostsRule: "Host: profiles.staging.midburn.org;"
+  SSLcheckMainDomain: staging.midburn.org
+  SSLcheckSparkDomain: spark.staging.midburn.org
+  SSLcheckProfilesDomain: profiles.staging.midburn.org
+  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
 
 spark:
 #  nodeEnv: production
@@ -66,3 +79,14 @@ volunteers:
   dbImportJob:
     IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-production-mongodump-2018-01-06-12-21.tar.gz
   dbBackupJob: true
+
+profiles:
+  dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db-latest
+  image: gcr.io/midbarrn/midburn-profiles-drupal-latest
+  enabled: true
+  # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
+  # NO trailing slash!
+  drupalBaseUrl: https://profiles.staging.midburn.org
+
+bi:
+  enabled: false

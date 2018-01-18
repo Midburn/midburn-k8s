@@ -1,0 +1,106 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: metabase
+spec:
+  selector:
+    app: metabase
+  ports:
+  - port: 3000
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: metabase
+spec:
+  replicas: 1
+  strategy: {type: Recreate, rollingUpdate: null}
+  template:
+    metadata:
+      labels:
+        app: metabase
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      # this is a small postgreSQL DB used internally by metabase
+      - name: postgres
+        image: postgres
+        command:
+        - bash
+        - "-c"
+        - |
+          docker-entrypoint.sh postgres &
+          export PGPASS=$POSTGRES_PASSWORD
+          while ! echo "select 1" | psql -h 127.0.0.1 -p 5432 -U postgres; do echo "waiting for db.."; sleep 5; done
+          RES=0
+          ERRORS=""
+          ! echo "CREATE DATABASE ${MB_DB_DBNAME}" | psql -h 127.0.0.1 -p 5432 -U postgres \
+            && ERRORS+="; failed to create db ${MB_DB_DBNAME}" && RES=1
+          if [ "${RES}" == "0" ]; then
+            echo "Great Success!"
+            touch /state/db_ready
+            while true; do sleep 86400; done
+          else
+            echo "Failed"
+            echo "${ERRORS}"
+            echo "Waiting 1 day before existing with error - to allow debugging"
+            sleep 86400
+            exit 1
+          fi
+        env:
+        - {name: POSTGRES_PASSWORD, value: "123456"}
+        - {name: MB_DB_DBNAME, value: metabase}
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "50Mi"
+          limits:
+            cpu: "100m"
+            memory: "100Mi"
+        volumeMounts:
+        - name: state
+          mountPath: /state
+      - name: metabase
+        image: metabase/metabase
+        env:
+        - {name: "MB_DB_TYPE", value: "postgres"}
+        - {name: "MB_DB_DBNAME", value: metabase}
+        - {name: "MB_DB_PORT", value: "5432"}
+        - {name: "MB_DB_USER", value: postgres}
+        - {name: "MB_DB_PASS", value: "123456"}
+        - {name: "MB_DB_HOST", value: "localhost"}
+        command:
+        - bash
+        - "-c"
+        - |
+          while ! [ -e /state/db_ready ]; do echo "waiting for db.."; sleep 5; done
+          touch /state/starting_metabase
+          /app/run_metabase.sh
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - |
+              [ -e /state/starting_metabase ] && wget -q localhost:3000 -O /dev/null
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 0.3
+            memory: "600Mi"
+          limits:
+            cpu: 0.6
+            memory: "1400Mi"
+        volumeMounts:
+        - name: state
+          mountPath: /state
+      volumes:
+      - name: state
+        emptyDir: {}
+{{ end }}

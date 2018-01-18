@@ -1,0 +1,108 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: profiles-db
+spec:
+  ports:
+  - name: '3306'
+    port: 3306
+  - name: '8080'
+    port: 8080
+  selector:
+    app: profiles-db
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: profiles-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: profiles-db
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: adminer
+        image: adminer
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "0.001"
+            memory: "10Mi"
+      - name: db
+        image: {{ .Values.dbImage | default "mysql:5.6" | quote }}
+        ports:
+        - {containerPort: 3306}
+        resources:
+          requests: {cpu: "100m", memory: "300Mi"}
+          limits: {cpu: "400m", memory: "1500Mi"}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+      - name: ops
+        image: orihoch/sk8s-ops:mysql
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: "10Mi"
+        command:
+        - bash
+        - "-c"
+        - |
+          echo "sleeping 15 seconds to let mysql start"
+          sleep 15
+          source ~/.bashrc
+          RES=0
+          ERRORS=""
+          ! gcloud config set project "{{ .Values.global.googleProjectId }}" && ERRORS+="; failed to set google projectid {{ .Values.global.googleProjectId }}" && RES=1
+          while ! echo "select 1" | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD}; do echo "waiting for mysql..."; sleep 5; done
+          if [ "${IMPORT_URL}" != "" ]; then
+            echo "importing from ${IMPORT_URL}"
+            ! echo "create database midburndb;" | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD} \
+              && ERRORS+="; failed to create midburndb" && RES=1
+            echo "IMPORT_URL=${IMPORT_URL}"
+            ! gsutil cp "${IMPORT_URL}" ./dump.sql && ERRORS+="; failed to download sql dump" && RES=1
+            ! cat ./dump.sql | mysql --host=127.0.0.1 --user=root --password=${MYSQL_ROOT_PASSWORD} --database midburndb --one-database \
+              && ERRORS+="; Failed mysql import" && RES=1
+          fi
+          if [ "${RES}" == "0" ]; then
+            echo "Great Success!"
+            touch /state/ops_ready
+            while true; do sleep 86400; done
+          else
+            echo "Failed"
+            echo "${ERRORS}"
+            echo "Waiting 1 day before existing with error - to allow debugging"
+            sleep 86400
+            exit 1
+          fi
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - "[ -e /state/ops_ready ]"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        - name: IMPORT_URL
+          value: {{ .Values.dbImportUrl | quote }}
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        - name: state
+          mountPath: /state
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: ops
+      - name: state
+        emptyDir: {}
+{{ end }}

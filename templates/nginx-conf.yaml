@@ -12,15 +12,26 @@ data:
 
       include /etc/nginx/conf.d/healthcheck.inc;
 
+      {{ if .Values.adminer.enabled }}
       location /adminer {
         proxy_pass http://adminer:8080;
         include /etc/nginx/conf.d/restricted.inc;
       }
+      {{ end }}
 
+      {{ if .Values.volunteers.enabled }}
       location /volunteers/mongoexpress {
         proxy_pass http://volunteersmongoexpress:8081;
         include /etc/nginx/conf.d/restricted.inc;
       }
+      {{ end }}
+
+      {{ if .Values.profiles.enabled }}
+      location /profiles/adminer {
+        proxy_pass http://profiles-db:8080;
+        include /etc/nginx/conf.d/restricted.inc;
+      }
+      {{ end }}
     }
 
   healthcheck.inc: |
@@ -33,6 +44,10 @@ data:
     {{ if .Values.nginx.htpasswdSecretName }}
     auth_basic "Restricted Content";
     auth_basic_user_file /etc/nginx/htpasswd/secret-nginx-htpasswd;
+    {{ else }}
+    {{ if .Values.traefik.enabled }}
+      ERROR!! CANNOT ENABLE TRAEFIK WITHOUT AUTHENTICATION!
+    {{ end }}
     {{ end }}
 
 {{ end }}
