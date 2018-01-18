@@ -7,9 +7,7 @@ data:
   traefik.toml: |
     # https://docs.traefik.io/configuration/commons/
 
-    {{ if .Values.global.debug }}
-    debug = true
-    {{ end }}
+    debug = false
 
     defaultEntryPoints = ["http", "https"]
     

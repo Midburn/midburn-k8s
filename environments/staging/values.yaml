@@ -8,6 +8,7 @@ global:
   googleProjectId: midbarrn
   projectName: midburn
   enableRootChart: true
+  backupsBucketName: midburn-k8s-backups
 
 traefik:
   enabled: true
@@ -34,6 +35,10 @@ traefik:
   backupJob: true
   enableLoadBalancer: true
   profilesHostsRule: "Host: profiles.staging.midburn.org;"
+  SSLcheckMainDomain: staging.midburn.org
+  SSLcheckSparkDomain: spark.staging.midburn.org
+  SSLcheckProfilesDomain: profiles.staging.midburn.org
+  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
 
 spark:
 #  nodeEnv: production

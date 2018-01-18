@@ -38,28 +38,74 @@ spec:
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
       {{ end }}
-#      initContainers:
-#      - name: ops
-#        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
-#        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
-#        command:
-#        - bash
-#        - "-c"
-#        - |
-#          if ! [ -e /traefik-acme/acme.json ]; then
-#            source ~/.bashrc;
-#            gcloud config set project "{{ .Values.global.googleProjectId }}"
-#            gsutil -m rsync -r `gsutil cat gs://{{ .Values.global.projectName }}-k8s-backups/{{ .Values.global.environmentName }}/traefik-acme/latest` /traefik-acme
-#          fi
-#          chmod -R 600 /traefik-acme
-#          exit 0
-#        volumeMounts:
-#        - name: k8s-ops
-#          mountPath: /k8s-ops
-#          readOnly: true
-#        - name: traefik-acme
-#          mountPath: /traefik-acme
+      initContainers:
+      # initops container - copies the acme data from last backup before starting up the pod
+      - name: initops
+        image: gcr.io/uumpa-public/sk8s-google-storage-sync:v0.0.2
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc;
+          gcloud config set project {{ .Values.global.googleProjectId | quote }}
+          ! gsutil -m rsync -x '^done|synced$' -r "gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/latest/" /traefik-acme/ \
+            && echo "failed to get traefik acme details from backup, continuing anyway, traefik will create new certificates (hopefully..)"
+          chmod -R 600 /traefik-acme
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        - name: traefik-acme
+          mountPath: /traefik-acme
       containers:
+      - name: ops
+        image: gcr.io/uumpa-public/sk8s-google-storage-sync:v0.0.2
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc;
+          gcloud config set project {{ .Values.global.googleProjectId | quote }}
+          echo "sleeping for 10 minutes before making the first backup to allow traefik time to issue certificates"
+          sleep 600
+          echo "making daily backups"
+          LATEST_BACKUP="gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/latest/"
+          echo "LATEST_BACKUP=${LATEST_BACKUP}"
+          while true; do
+            HISTORY_BACKUP="gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/`date +%Y-%m-%d-%H-%M`/"
+            echo "HISTORY_BACKUP=${HISTORY_BACKUP}"
+            ! gsutil -m rsync -x '^done|synced$' -r /traefik-acme/ gs://{{ .Values.global.backupsBucketName }}/{{ .Values.global.environmentName }}/traefik-acme/latest/ \
+              && echo "failed to sync latest backup" && exit 1
+            ! gsutil -m rsync -x '^done|synced$' -r /traefik-acme/ "${HISTORY_BACKUP}" \
+              && echo "failed to sync ${HISTORY_BACKUP}" && exit 1
+            echo "sleeping for 1 day"
+            sleep 86400
+          done
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - |
+              RES=0
+              check_domain() {
+                curl --insecure -v https://${1}/ 2>&1 | grep "SSL certificate verify " | tee /dev/stderr | grep "SSL certificate verify ok."
+              }
+              {{ if .Values.traefik.SSLcheckMainDomain }}! check_domain {{ .Values.traefik.SSLcheckMainDomain }} && RES=1{{ end }}
+              {{ if .Values.traefik.SSLcheckSparkDomain }}! check_domain {{ .Values.traefik.SSLcheckSparkDomain }} && RES=1{{ end }}
+              {{ if .Values.traefik.SSLcheckProfilesDomain }}! check_domain {{ .Values.traefik.SSLcheckProfilesDomain }} && RES=1{{ end }}
+              {{ if .Values.traefik.SSLcheckVolunteersDomain }}! check_domain {{ .Values.traefik.SSLcheckVolunteersDomain }} && RES=1{{ end }}
+              exit $RES
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        - name: traefik-acme
+          mountPath: /traefik-acme
       - name: traefik
         image: traefik
         ports:
@@ -70,10 +116,8 @@ spec:
         volumeMounts:
         - name: etc-traefik
           mountPath: /etc-traefik
-        {{ if .Values.traefik.acmeEmail }}
         - name: traefik-acme
           mountPath: /traefik-acme
-        {{ end }}
         args:
         - "--configFile=/etc-traefik/traefik.toml"
         {{ if eq .Values.traefik.dnsProvider "route53" }}
@@ -92,13 +136,9 @@ spec:
       - name: etc-traefik
         configMap:
           name: etc-traefik
-      {{ if .Values.traefik.acmeEmail }}
       - name: traefik-acme
-        hostPath:
-          type: DirectoryOrCreate
-          path: /var/{{ .Values.global.projectName }}-traefik-acme-{{ .Values.global.environmentName }}
-      {{ end }}
-#      - name: k8s-ops
-#        secret:
-#          secretName: ops
+        emptyDir: {}
+      - name: k8s-ops
+        secret:
+          secretName: ops
 {{ end }}

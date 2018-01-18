@@ -4,7 +4,7 @@ source connect.sh
 
 CHART_NAME="${1}"
 
-[ -z "${CHART_NAME}" ] && usage && exit 1
+[ -z "${CHART_NAME}" ] && echo "usage:" && echo "./helm_upgrade_external_chart.sh <EXTERNAL_CHART_NAME>" && exit 1
 
 RELEASE_NAME="${K8S_HELM_RELEASE_NAME}-${CHART_NAME}-${K8S_ENVIRONMENT_NAME}"
 EXTERNAL_CHARTS_DIRECTORY="charts-external"

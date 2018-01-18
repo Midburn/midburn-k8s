@@ -19,6 +19,9 @@ traefik:
     [[acme.domains]]
       main = "volunteers.spark.midburn.org"
   acmeEmail: ori@uumpa.com
+  dnsProvider: route53
+  AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
+  AWS_REGION: "eu-west-1"
   sparkHostsRule: "Host: spark.midburn.org;"
   volunteersHostsRule: "Host: volunteers.spark.midburn.org;"
   # gcloud compute addresses create midburn-production-traefik --region=us-central1
@@ -28,6 +31,7 @@ traefik:
 #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
   enableLoadBalancer: true
+  # profilesHostsRule: "Host: profile.midburn.org;"
 
 spark:
   nodeEnv: production
@@ -68,3 +72,14 @@ volunteers:
   dbImportJob:
     IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
   dbBackupJob: true
+
+profiles:
+  enabled: false
+  # dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db-latest
+  # image: gcr.io/midbarrn/midburn-profiles-drupal-latest
+  # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
+  # NO trailing slash!
+  # drupalBaseUrl: https://profile.midburn.org
+
+bi:
+  enabled: false
