@@ -12,8 +12,8 @@ https://cloud.google.com/kubernetes-engine/kubernetes-comic/
 You can interact with the Kubernetes environment in the following ways - 
 
 * GitHub - commits to master branch are continuously deployed to the relevant environment. See .travis.yaml for the continuous deployment configuration and deployed environments.
-* [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - The recommended and easiest way for running management commands. Just setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying by mistake). You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files).
-* Any modern PC / OS should also work, you will just need to install some basic dependencies like Docker and Google Cloud SDK (possibly more). The main problem with working from local PC is the network connection, if you have a stable, fast connection and know how to install the dependencies, you might be better of running from your own PC.
+* [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - Easy way for quickly running management commands. Setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying too much). You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files).
+* Any modern PC / OS should also work, you will just need to install some dependencies, mostly Docker and the gcloud SDK.
 * Docker + Google Cloud service account - for automation / CI / CD. See the Docker Ops section below for more details.
 
 
@@ -38,9 +38,9 @@ cd midburn-k8s
 ```
 
 
-## Connect to an existing environment
+## Environments
 
-The main environments should be committed to this repo under `environments` directory
+The main environments should be committed to this repo under `environments` directory.
 
 Each directory under `environments` corresponds to an environment name which you can connect to:
 
@@ -50,17 +50,19 @@ source switch_environment.sh ENVIRONMENT_NAME
 
 Make sure you are connected to the correct environment before running any of the following commands.
 
+You can create a new environment by copying an existing environment directory and modifying the values.
+
+See the [sk8s environments documentation](https://github.com/OriHoch/sk8s/blob/master/environments/README.md#environments) for more details about environments, namespaces and clusters.
+
 
 ## Releases and deployments
 
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
 
-Notes regarding deployment to the main, shared environments (`staging` / `production`):
-  * The preferred way to deploy is by opening and merging a pull request - this prevents infrastructure deployment risks and is generally more secure.
-  * If you intend to do some infrastructure development, consider creating your own personal environment and testing on that.
-  * If you want to update an attribute of a specific deployment, see the section below - Patching configuration values without Helm
+* The preferred way to deploy is by opening and merging a pull request - this prevents infrastructure deployment risks and is generally more secure.
+* If you intend to do some infrastructure development, consider creating your own personal environment and testing on that.
 
-If you still want to deploy directly, just make sure you are the only one working on the environment and/or update with the master branch to prevent infrastructure conflicts.
+If you still want to deploy directly, just make sure you are the only one working on a chart on an environment and/or update with the master branch to prevent infrastructure conflicts.
 
 Make sure you have the latest helm installed on both client and server: 
 
@@ -94,11 +96,27 @@ Additionally, you can to use `force_update.sh` to force an update on a specific 
 
 ## Helm configuration values
 
-The default values are at `values.yaml` - these are used in the chart template files (under `templates` and `charts` directories)
+The default values are at `values.yaml` - these are used in the chart template files (under `templates`, `charts`  and `charts-external` directories)
 
 Each environment can override these values using `environments/ENVIRONMENT_NAME/values.yaml`
 
 Finally, automation scripts write values to `environments/ENVIRONMENT_NAME/values.auto-updated.yaml` using the `update_yaml.py` script
+
+
+## External Charts
+
+Charts under `charts-external` directory are deployed in a dedicated helm release for each chart.
+
+To deploy external charts, you should use the `./helm_upgrade_external_chart.sh` script:
+
+```
+./helm_upgrade_external_chart.sh <EXTERNAL_CHART_NAME> [HELM_UPGRADE_ARGUMENTS]..
+```
+
+This script does the following:
+
+* creates a values files containing only the values under root attributes `global` and under the chart name.
+* deploys a helm release named `(MAIN_RELEASE_NAME)-(CHART_NAME)-(ENVIRONMENT_NAME)` from the helm chart under `charts-external/CHART_NAME`
 
 
 ## Secrets
@@ -121,139 +139,25 @@ You can use the following snippet in the secrets.sh script to check if secret ex
 ```
 
 
-## Subcharts
-
-Some components are defined in Helm sub charts under `charts` directory.
-
-Each sub-chart has a README.md with details about setting up and using that chart.
-
-
-## Create a new environment
-
-Each environment should have the following files:
-
-- `environments/ENVIRONMENT_NAME/.env` *(required)*: the basic environment connection details
-- `environments/ENVIRONMENT_NAME/values.yaml` *(optional)*: override default helm chart values for this environment
-- `environments/ENVIRONMENT_NAME/values.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
-- `environments/ENVIRONMENT_NAME/secrets.sh` *(optional)* create the secrets for this environment, shouldn't be committed to Git.
-
-You don't have to create a new cluster for each environment, you can use namespaces to differentiate between environments and keep everything on a single cluster.
-
-If you are using an existing cluster, skip to "once the cluster is running" below
-
-Get the available Kubernetes versions:
-
-```
-gcloud --project=<GOOGLE_PROJECT_ID> container get-server-config --zone=us-central1-a
-```
-
-Create a cluster (modify version to latest from previous command):
-
-```
-gcloud --project=<GOOGLE_PROJECT_ID> container clusters create --zone=us-central1-a <CLUSTER_NAME> \
-                                                               --cluster-version=1.8.4-gke.0 \
-                                                               --num-nodes=1
-```
-
-Once the cluster is running, connect to the environment:
-
-```
-source switch_environment.sh ENVIRONMENT_NAME
-```
-
-If it's a new cluster - install the Helm server-side component
-
-```
-helm init
-```
-
-
 ## Docker OPS
 
-To faciliate CI/CD and other automated flows you can use the provided ops Dockerfile.
+To faciliate CI/CD and other automated flows we use the [sk8s-ops](https://github.com/orihoch/sk8s-ops#sk8s-ops) docker container.
 
-You should get the `secret-midburn-k8s-ops.json` file from a team member (see below for how to create it)
+To run the docker ops container locally, you should get a Google Service Account key with relevant permissions.
 
-Once you have this file in the current directory you can run the following to start a bash session in staging environment:
-
-Assuming you have the service account secret available at `secret-midburn-k8s-ops.json` you can run the following to start an interactive bash session:
+Download the docker ops script
 
 ```
-./run_docker_ops.sh staging
+wget https://raw.githubusercontent.com/OriHoch/sk8s/master/run_docker_ops.sh && chmod +x run_docker_ops.sh
 ```
 
-Inside the environment you can run all ops scripts and kubectl commands
-
-For security, the docker ops by default downloads a fresh copy of midburn-k8s repo and docker image, to use the local directory (assuming you are inside the midburn-k8s directory):
+Get list of pods (assuming you have the required secret key under `secret-k8s.ops.json`)
 
 ```
-./run_docker_ops.sh staging "" "." "."
+./run_docker_ops.sh ENVIRONMENT_NAME "kubectl get pods" "orihoch/sk8sops" Midburn/midburn-k8s master secret-k8s-ops.json
 ```
 
-
-## Building and publishing the OPS image
-
-The OPS docker image should be publically available on docker hub
-
-Pull the docker image which is built by the continuous deployment
-
-```
-gcloud docker -- pull gcr.io/uumpa123/midburn-k8s
-```
-
-Tag and push to docker hub
-
-```
-docker tag gcr.io/uumpa123/midburn-k8s orihoch/midburn-k8s
-```
-
-Update the image in the run_docker_ops.sh script using the sha256: id to refer to the image:
-
-```
-orihoch/midburn-k8s@sha256:95f0cb600504dd891aa8a4dba25aef63091984da27d0c3072085673665fb4cd6
-```
-
-
-## Enable the ops management pos
-
-Create the ops secret to allow using the ops deployment to run management tasks from inside the cluster:
-
-```
-kubectl create secret generic midburn-k8s-ops "--from-file=secret.json=environments/${K8S_ENVIRONMENT_NAME}/secret-midburn-k8s-ops.json"
-```
-
-Set in values
-
-```
-global:
-  k8sOpsSecretName: midburn-k8s-ops
-  k8sOpsImage: orihoch/midburn-k8s@sha256:dc3531820588d0b217a2e4af0432e492900cc78efd078a9a555889f80f015222
-```
-
-You can now `kubectl exec -it` to this pod to run management commands inside the cluster
-
-
-## Creating a new service account and secret-midburn-k8s-ops.json file
-
-```
-export SERVICE_ACCOUNT_NAME="midburn-k8s-ops"
-export SERVICE_ACCOUNT_ID="${SERVICE_ACCOUNT_NAME}@${CLOUDSDK_CORE_PROJECT}.iam.gserviceaccount.com"
-gcloud iam service-accounts create "${SERVICE_ACCOUNT_NAME}"
-gcloud iam service-accounts keys create "--iam-account=${SERVICE_ACCOUNT_ID}" "secret-midburn-k8s-ops.json"
-```
-
-Add admin roles for common services:
-
-```
-gcloud projects add-iam-policy-binding --role "roles/storage.admin" "${CLOUDSDK_CORE_PROJECT}" \
-                                       --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
-gcloud projects add-iam-policy-binding --role "roles/cloudbuild.builds.editor" "${CLOUDSDK_CORE_PROJECT}" \
-                                       --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
-gcloud projects add-iam-policy-binding --role "roles/container.admin" "${CLOUDSDK_CORE_PROJECT}" \
-                                       --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
-gcloud projects add-iam-policy-binding --role "roles/viewer" "${CLOUDSDK_CORE_PROJECT}" \
-                                       --member "serviceAccount:${SERVICE_ACCOUNT_ID}"
-```
+See the [SK8S ops documentation](https://github.com/orihoch/sk8s-ops#sk8s-ops) for more details
 
 
 ## Patching configuration values without Helm
