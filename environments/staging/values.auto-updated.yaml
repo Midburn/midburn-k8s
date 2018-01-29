@@ -1,3 +1,5 @@
+dreams:
+  image: gcr.io/midbarrn/midburn-dreams-cd:a9600caea43232d185221369663c6fd3688198db
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
