@@ -90,3 +90,7 @@ profiles:
 
 bi:
   enabled: false
+
+dreams:
+  enabled: true
+  APP_URL: https://dreams.staging.midburn.org/

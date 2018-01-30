@@ -1,0 +1,101 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: dreams
+spec:
+  ports:
+  - name: '3000'
+    port: 3000
+  selector:
+    app: dreams
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dreams
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dreams
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: dreams
+        image: {{ .Values.image | quote }}
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 20m
+        env:
+        - name: APP_URL
+          value: {{ .Values.APP_URL }}
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom: {secretKeyRef: {name: "dreams",key: "AWS_ACCESS_KEY_ID"}}
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom: {secretKeyRef: {name: "dreams",key: "AWS_SECRET_ACCESS_KEY"}}
+        - name: CREW_SIZE
+          value: "true"
+        - name: DATABASE_URL
+          value: postgres://dreamsdb
+        - name: DISABLE_EDITING_DREAM
+          value: "false"
+        - name: EMAIL_FROM
+          value: "art@midburn.org"
+        - name: GOOGLE_APPS_NAME
+          value: "Midburn Dreams Google Apps Script"
+        - name: GOOGLE_APPS_SCRIPT
+          valueFrom: {secretKeyRef: {name: "dreams",key: "GOOGLE_APPS_SCRIPT"}}
+        - name: GOOGLE_APPS_SCRIPT_FUNCTION
+          value: createDream
+        - name: GOOGLE_APPS_SCRIPT_TOKEN
+          valueFrom: {secretKeyRef: {name: "dreams",key: "GOOGLE_APPS_SCRIPT_TOKEN"}}
+        - name: GOOGLE_CLIENT_SECRETS
+          valueFrom: {secretKeyRef: {name: "dreams",key: "GOOGLE_CLIENT_SECRETS"}}
+        - name: GOOGLE_DRIVE_INTEGRATION
+          value: "false"
+        - name: LANG
+          value: en_US.UTF-8
+        - name: MULTI_LANG_SUPPORT
+          value: "true"
+        - name: PERSON_EARLY_ARRIVAL
+          value: "true"
+        - name: PERSON_HAS_TICKET
+          value: "true"
+        - name: RACK_ENV
+          value: production
+        - name: RAILS_ENV
+          value: production
+        - name: RAILS_SERVE_STATIC_FILES
+          value: "enabled"
+        - name: RAYGUN_APIKEY
+          valueFrom: {secretKeyRef: {name: "dreams",key: "RAYGUN_APIKEY"}}
+        - name: RECAPTCHA_SECRET_KEY
+          valueFrom: {secretKeyRef: {name: "dreams",key: "RECAPTCHA_SECRET_KEY"}}
+        - name: RECAPTCHA_SITE_KEY
+          valueFrom: {secretKeyRef: {name: "dreams",key: "RECAPTCHA_SITE_KEY"}}
+        - name: S3_BUCKET_NAME
+          valueFrom: {secretKeyRef: {name: "dreams",key: "S3_BUCKET_NAME"}}
+        - name: SECRET_KEY_BASE
+          valueFrom: {secretKeyRef: {name: "dreams",key: "SECRET_KEY_BASE"}}
+        - name: SENDGRID_PASSWORD
+          valueFrom: {secretKeyRef: {name: "dreams",key: "SENDGRID_PASSWORD"}}
+        - name: SENDGRID_USERNAME
+          valueFrom: {secretKeyRef: {name: "dreams",key: "SENDGRID_USERNAME"}}
+        - name: SHOW_POINT_OF_CONTACT
+          value: "true"
+        - name: SHOW_SAFETY_FILE_COMMENTS
+          value: "true"
+        - name: SPARK
+          value: "true"
+        - name: SPARK_TOKEN
+          valueFrom: {secretKeyRef: {name: "spark-secret-token",key: "SPARK_SECRET_TOKEN"}}
+        - name: SPARK_URL
+          value: https://spark.midburn.org/api/userlogin
+        - name: TZ
+          value: Asia/Jerusalem
+{{ end }}
