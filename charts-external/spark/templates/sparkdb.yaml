@@ -49,14 +49,14 @@ spec:
         - name: MYSQL_PASSWORD
           value: spark
         {{ end }}
-      {{ if .Values.global.persistentStorageIP }}
+      {{ if .Values.persistentStorageName }}
         volumeMounts:
         - name: sparkdb
           mountPath: /var/lib/mysql
       volumes:
       - name: sparkdb
         nfs:
-          path: "/data/{{ .Values.global.environmentName }}/sparkdb"
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
           server: {{ .Values.global.persistentStorageIP | quote }}
       {{ end }}
 {{ end }}
