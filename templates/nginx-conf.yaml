@@ -32,6 +32,12 @@ data:
         include /etc/nginx/conf.d/restricted.inc;
       }
       {{ end }}
+
+      {{ if .Values.bi.enabled }}
+      location /metabase/ {
+        proxy_pass http://metabase:3000/;
+      }
+      {{ end }}
     }
 
   healthcheck.inc: |

@@ -34,5 +34,5 @@ bi:
   metabaseResources: >
     {"requests": {"cpu": "500m", "memory": "1500Mi"}, "limits": {"cpu": "1", "memory": "2500Mi"}}
   metabasePostgresqlResources: >
-    {"requests": {"cpu": "5m", "memory": "200Mi"}, "limits": {"cpu": "10m", "memory": "500Mi"}}
+    {"requests": {"cpu": "20m", "memory": "200Mi"}, "limits": {"cpu": "50m", "memory": "500Mi"}}
   JAVA_TIMEZONE: Asia/Jerusalem
