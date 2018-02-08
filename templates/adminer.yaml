@@ -27,15 +27,5 @@ spec:
         image: adminer
         ports:
         - containerPort: 8080
-        resources:
-          requests:
-            cpu: "0.001"
-            memory: "10Mi"
-        readinessProbe:
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 10
-          httpGet:
-            path: /
-            port: 8080
+        resources: {{ .Values.adminer.resources }}
 {{ end }}

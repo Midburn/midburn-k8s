@@ -9,6 +9,9 @@ global:
   projectName: midburn
   enableRootChart: true
   backupsBucketName: midburn-k8s-backups
+  # this is the same for all environments
+  # gcloud compute instances describe midburn-k8s-persistent-storage-vm --zone=us-central1-a --format='value(networkInterfaces[0].networkIP)'
+  persistentStorageIP: 10.128.0.7
 
 traefik:
   enabled: true
@@ -19,8 +22,8 @@ traefik:
       main = "production.midburn.org"
     [[acme.domains]]
       main = "volunteers.spark.midburn.org"
-#    [[acme.domains]]
-#      main = "profiles.staging.midburn.org"
+#   [[acme.domains]]
+#     main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
@@ -34,11 +37,11 @@ traefik:
 #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
   enableLoadBalancer: true
-  # profilesHostsRule: "Host: profile.midburn.org;"
-  SSLcheckMainDomain: production.midburn.org
-  SSLcheckSparkDomain: spark.midburn.org
+# profilesHostsRule: "Host: profile.midburn.org;"
+#  SSLcheckMainDomain: production.midburn.org
+#  SSLcheckSparkDomain: spark.midburn.org
 #  SSLcheckProfilesDomain: profile.midburn.org
-  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
+#  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
 
 spark:
   nodeEnv: production
@@ -48,11 +51,9 @@ spark:
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
-
-  # import database from old spark production
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-old-production-dump-2018-01-06-12-04.sql
   dbBackupJob: true
+  # persistent storage was setup using environments/staging/persistent_storage_migration.sh
+  persistentStorageName: sparkdb
 
   # Mail - using Ori's Mailjet account
   disableMailtrap: "true"
@@ -76,17 +77,23 @@ nginx:
 volunteers:
   ENVIRONMENT: production
   SPARK_HOST: https://spark.midburn.org
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
+  # dbImportJob:
+  #   IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
   dbBackupJob: true
+  # persistent storage was setup using environments/staging/volunteersdb_persistent_storage_migration.sh
+  persistentStorageName: volunteersdb
 
 profiles:
+  dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db-latest
+  image: gcr.io/midbarrn/midburn-profiles-drupal-latest
   enabled: false
-  # dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db-latest
-  # image: gcr.io/midbarrn/midburn-profiles-drupal-latest
   # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
   # NO trailing slash!
-  # drupalBaseUrl: https://profile.midburn.org
+  drupalBaseUrl: https://profiles.staging.midburn.org
 
 bi:
+  enabled: true
+
+dreams:
   enabled: false
+  APP_URL: https://dreams.midburn.org/

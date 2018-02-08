@@ -83,23 +83,23 @@ spec:
             echo "sleeping for 1 day"
             sleep 86400
           done
-        readinessProbe:
-          exec:
-            command:
-            - bash
-            - "-c"
-            - |
-              RES=0
-              check_domain() {
-                curl --insecure -v https://${1}/ 2>&1 | grep "SSL certificate verify " | tee /dev/stderr | grep "SSL certificate verify ok."
-              }
-              {{ if .Values.traefik.SSLcheckMainDomain }}! check_domain {{ .Values.traefik.SSLcheckMainDomain }} && RES=1{{ end }}
-              {{ if .Values.traefik.SSLcheckSparkDomain }}! check_domain {{ .Values.traefik.SSLcheckSparkDomain }} && RES=1{{ end }}
-              {{ if .Values.traefik.SSLcheckProfilesDomain }}! check_domain {{ .Values.traefik.SSLcheckProfilesDomain }} && RES=1{{ end }}
-              {{ if .Values.traefik.SSLcheckVolunteersDomain }}! check_domain {{ .Values.traefik.SSLcheckVolunteersDomain }} && RES=1{{ end }}
-              exit $RES
-          initialDelaySeconds: 5
-          periodSeconds: 5
+#        readinessProbe:
+#          exec:
+#            command:
+#            - bash
+#            - "-c"
+#            - |
+#              RES=0
+#              check_domain() {
+#                curl --insecure -v https://${1}/ 2>&1 | grep "SSL certificate verify " | tee /dev/stderr | grep "SSL certificate verify ok."
+#              }
+#              {{ if .Values.traefik.SSLcheckMainDomain }}! check_domain {{ .Values.traefik.SSLcheckMainDomain }} && RES=1{{ end }}
+#              {{ if .Values.traefik.SSLcheckSparkDomain }}! check_domain {{ .Values.traefik.SSLcheckSparkDomain }} && RES=1{{ end }}
+#              {{ if .Values.traefik.SSLcheckProfilesDomain }}! check_domain {{ .Values.traefik.SSLcheckProfilesDomain }} && RES=1{{ end }}
+#              {{ if .Values.traefik.SSLcheckVolunteersDomain }}! check_domain {{ .Values.traefik.SSLcheckVolunteersDomain }} && RES=1{{ end }}
+#              exit $RES
+#          initialDelaySeconds: 5
+#          periodSeconds: 5
         volumeMounts:
         - name: k8s-ops
           mountPath: /k8s-ops

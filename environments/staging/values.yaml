@@ -9,6 +9,9 @@ global:
   projectName: midburn
   enableRootChart: true
   backupsBucketName: midburn-k8s-backups
+  # this is the same for all environments
+  # gcloud compute instances describe midburn-k8s-persistent-storage-vm --zone=us-central1-a --format='value(networkInterfaces[0].networkIP)'
+  persistentStorageIP: 10.128.0.7
 
 traefik:
   enabled: true
@@ -35,10 +38,10 @@ traefik:
   backupJob: true
   enableLoadBalancer: true
   profilesHostsRule: "Host: profiles.staging.midburn.org;"
-  SSLcheckMainDomain: staging.midburn.org
-  SSLcheckSparkDomain: spark.staging.midburn.org
-  SSLcheckProfilesDomain: profiles.staging.midburn.org
-  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
+#  SSLcheckMainDomain: staging.midburn.org
+#  SSLcheckSparkDomain: spark.staging.midburn.org
+#  SSLcheckProfilesDomain: profiles.staging.midburn.org
+#  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
 
 spark:
 #  nodeEnv: production
@@ -48,11 +51,9 @@ spark:
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
-
-  # import database from spark production
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-production-dump-2018-01-06-12-16.sql
   dbBackupJob: true
+  # persistent storage was setup using environments/staging/persistent_storage_migration.sh
+  persistentStorageName: sparkdb
 
   # Mail - using Ori's Mailjet account
   disableMailtrap: "true"
@@ -76,9 +77,11 @@ nginx:
 volunteers:
   ENVIRONMENT: staging
   SPARK_HOST: https://spark.staging.midburn.org
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-production-mongodump-2018-01-06-12-21.tar.gz
+  # dbImportJob:
+  #   IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-staging-mongodump-2018-02-08-00-00.tar.gz
   dbBackupJob: true
+  # persistent storage was setup using environments/staging/volunteersdb_persistent_storage_migration.sh
+  persistentStorageName: volunteersdb
 
 profiles:
   dbImage: gcr.io/midbarrn/midburn-profiles-drupal-db-latest

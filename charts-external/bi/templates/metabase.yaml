@@ -53,16 +53,14 @@ spec:
         - {name: MB_DB_DBNAME, value: metabase}
         ports:
         - containerPort: 5432
-        resources:
-          requests:
-            cpu: "10m"
-            memory: "50Mi"
-          limits:
-            cpu: "100m"
-            memory: "100Mi"
+        resources: {{ .Values.metabasePostgresqlResources }}
         volumeMounts:
         - name: state
           mountPath: /state
+        {{ if .Values.persistentStorageName }}
+        - name: metabasedb
+          mountPath: /var/lib/postgresql/data
+        {{ end }}
       - name: metabase
         image: metabase/metabase
         env:
@@ -72,6 +70,8 @@ spec:
         - {name: "MB_DB_USER", value: postgres}
         - {name: "MB_DB_PASS", value: "123456"}
         - {name: "MB_DB_HOST", value: "localhost"}
+        - name: JAVA_TIMEZONE
+          value: {{ .Values.JAVA_TIMEZONE }}
         command:
         - bash
         - "-c"
@@ -90,17 +90,17 @@ spec:
           periodSeconds: 5
         ports:
         - containerPort: 3000
-        resources:
-          requests:
-            cpu: 0.3
-            memory: "600Mi"
-          limits:
-            cpu: 0.6
-            memory: "1400Mi"
+        resources: {{ .Values.metabaseResources }}
         volumeMounts:
         - name: state
           mountPath: /state
       volumes:
       - name: state
         emptyDir: {}
+      {{ if .Values.persistentStorageName }}
+      - name: metabasedb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}

@@ -10,14 +10,20 @@ global:
   googleProjectId: midbarrn
   projectName: midburn
   enableRootChart: true
+  # this is the same for all environments
+  # gcloud compute instances describe midburn-k8s-persistent-storage-vm --zone=us-central1-a --format='value(networkInterfaces[0].networkIP)'
+  persistentStorageIP: 10.128.0.7
 
 traefik:
-  enabled: true
+  enabled: false
   enableLoadBalancer: false
   profilesHostsRule: ""
 
 spark:
-  enabled: false
+  enabled: true
+  enableDeployment: false
+  # see Shared / Persistent Storage section in the README to prepare the storage / import existing data
+  persistentStorageName: sparkdb
 
 nginx:
   enabled: true
@@ -27,10 +33,10 @@ volunteers:
   enabled: false
 
 profiles:
-  enabled: true
+  enabled: false
   # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
   # NO trailing slash!
   # drupalBaseUrl: http://localhost
 
 bi:
-  enabled: false
+  enabled: true

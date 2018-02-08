@@ -1,5 +1,7 @@
 adminer:
   enabled: true
+  resources: >
+    {"requests": {"cpu": "20m", "memory": "30Mi"}, "limits": {"cpu": "50m", "memory": "100Mi"}}
 
 sparkdb:
   enabled: true
@@ -17,9 +19,20 @@ ops:
 spark:
   enabled: true
   image: orihoch/spark:modernize-dockerize
+  enableDeployment: true
+  sparkDbResources: >
+    {"requests": {"cpu": "100m", "memory": "600Mi"}, "limits": {"cpu": "200m", "memory": "1500Mi"}}
 
 traefik:
   enabled: true
 
 volunteers:
   enabled: true
+
+bi:
+  enabled: false
+  metabaseResources: >
+    {"requests": {"cpu": "500m", "memory": "1500Mi"}, "limits": {"cpu": "1", "memory": "2500Mi"}}
+  metabasePostgresqlResources: >
+    {"requests": {"cpu": "5m", "memory": "200Mi"}, "limits": {"cpu": "10m", "memory": "500Mi"}}
+  JAVA_TIMEZONE: Asia/Jerusalem

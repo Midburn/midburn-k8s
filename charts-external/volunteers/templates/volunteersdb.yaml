@@ -21,6 +21,8 @@ spec:
       labels:
         app: volunteersdb
     spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: volunteersdb
         image: mongo
@@ -28,6 +30,14 @@ spec:
         - {containerPort: 27017}
         resources:
           requests: {cpu: 20m}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      {{ if .Values.persistentStorageName }}
+        volumeMounts:
+        - name: volunteersdb
+          mountPath: /data/db
+      volumes:
+      - name: volunteersdb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}
