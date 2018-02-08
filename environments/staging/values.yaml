@@ -55,7 +55,6 @@ spark:
   # persistent storage was setup using environments/staging/persistent_storage_migration.sh
   persistentStorageName: sparkdb
 
-
   # Mail - using Ori's Mailjet account
   disableMailtrap: "true"
   secureMailserverSecretName: spark-mail
