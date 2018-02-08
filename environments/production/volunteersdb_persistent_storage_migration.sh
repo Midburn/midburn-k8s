@@ -25,7 +25,7 @@ gcloud compute ssh midburn-k8s-persistent-storage-vm --command="bash -c '
     echo copying from pod ${VOLUNTEERSDB_POD}
     ! kubectl cp ${VOLUNTEERSDB_POD}:/data/db /data/${K8S_ENVIRONMENT_NAME}/volunteersdb && echo failed && exit 1
     echo setting permissions
-    sudo chown -R root:root /data/${K8S_ENVIRONMENT_NAME}/volunteersdb
+    sudo chown -R 999:999 /data/${K8S_ENVIRONMENT_NAME}/volunteersdb
     echo great success
     exit 0
 '"

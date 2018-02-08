@@ -77,9 +77,9 @@ nginx:
 volunteers:
   ENVIRONMENT: production
   SPARK_HOST: https://spark.midburn.org
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
-  # dbBackupJob: true
+  # dbImportJob:
+  #   IMPORT_URL: gs://midburn-k8s-backups/volunteersdb-old-staging-dump-2017-12-27-18-01.tar.gz
+  dbBackupJob: true
   # persistent storage was setup using environments/staging/volunteersdb_persistent_storage_migration.sh
   persistentStorageName: volunteersdb
 
@@ -92,7 +92,7 @@ profiles:
   drupalBaseUrl: https://profiles.staging.midburn.org
 
 bi:
-  enabled: false
+  enabled: true
 
 dreams:
   enabled: false

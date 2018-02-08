@@ -57,6 +57,10 @@ spec:
         volumeMounts:
         - name: state
           mountPath: /state
+        {{ if .Values.persistentStorageName }}
+        - name: metabasedb
+          mountPath: /var/lib/postgresql/data
+        {{ end }}
       - name: metabase
         image: metabase/metabase
         env:
@@ -93,4 +97,10 @@ spec:
       volumes:
       - name: state
         emptyDir: {}
+      {{ if .Values.persistentStorageName }}
+      - name: metabasedb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}
