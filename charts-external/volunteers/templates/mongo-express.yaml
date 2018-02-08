@@ -36,6 +36,6 @@ spec:
         - containerPort: 8081
         resources:
           requests:
-            cpu: "0.001"
+            cpu: "20m"
             memory: "10Mi"
 {{ end }}
