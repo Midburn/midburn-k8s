@@ -33,7 +33,7 @@ spec:
       {{ if .Values.persistentStorageName }}
         volumeMounts:
         - name: volunteersdb
-          mountPath: /var/lib/mysql
+          mountPath: /data/db
       volumes:
       - name: volunteersdb
         nfs:
