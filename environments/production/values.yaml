@@ -35,10 +35,10 @@ traefik:
   backupJob: true
   enableLoadBalancer: true
   # profilesHostsRule: "Host: profile.midburn.org;"
-  SSLcheckMainDomain: production.midburn.org
-  SSLcheckSparkDomain: spark.midburn.org
+#  SSLcheckMainDomain: production.midburn.org
+#  SSLcheckSparkDomain: spark.midburn.org
 #  SSLcheckProfilesDomain: profile.midburn.org
-  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
+#  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
 
 spark:
   nodeEnv: production
