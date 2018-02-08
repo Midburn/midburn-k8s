@@ -48,11 +48,10 @@ spark:
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
-
-  # import database from spark production
-  dbImportJob:
-    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-production-dump-2018-01-06-12-16.sql
   dbBackupJob: true
+  # persistent storage was setup using environments/staging/persistent_storage_migration.sh
+  persistentStorageName: sparkdb
+
 
   # Mail - using Ori's Mailjet account
   disableMailtrap: "true"
