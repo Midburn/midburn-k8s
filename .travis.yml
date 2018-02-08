@@ -23,6 +23,7 @@ script:
       chmod +x run_docker_ops.sh
       if ./run_docker_ops.sh "${K8S_ENVIRONMENT_NAME}" "
          RES=0;
+         curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh;
          ! ./helm_upgrade.sh && echo 'failed helm upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh spark && echo 'failed spark upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh volunteers && echo 'failed volunteers upgrade' && RES=1;
