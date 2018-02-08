@@ -1,4 +1,4 @@
-{{ if .Values.enabled }}
+{{ if .Values.enabled }}{{ if .Values.enableDeployment }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -140,4 +140,4 @@ spec:
       volumes:
       - name: migrations
         emptyDir: {}
-{{ end }}
+{{ end }}{{ end }}

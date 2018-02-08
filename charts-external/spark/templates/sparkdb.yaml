@@ -21,13 +21,14 @@ spec:
       labels:
         app: sparkdb
     spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: sparkdb
         image: mariadb:10.0
         ports:
         - {containerPort: 3306}
-        resources:
-          requests: {cpu: 20m}
+        resources: {{ .Values.sparkDbResources }}
         {{ if .Values.rootSecretName }}
         envFrom:
         # root secret - contains the mysql root password
@@ -48,6 +49,14 @@ spec:
         - name: MYSQL_PASSWORD
           value: spark
         {{ end }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      {{ if .Values.global.persistentStorageIP }}
+        volumeMounts:
+        - name: sparkdb
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: sparkdb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/sparkdb"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}

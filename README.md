@@ -68,7 +68,7 @@ Make sure you have the latest helm installed on both client and server:
 
 ```
 kubectl create -f rbac-config.yaml
-helm init --service-account tiller
+helm init --service-account tiller --upgrade --force-upgrade --history-max 1
 ```
 
 Deploy:
@@ -92,6 +92,18 @@ Some useful arguments:
 * For debugging you can also use `--debug` and `--dry-run`
 
 Additionally, you can to use `force_update.sh` to force an update on a specific deployment.
+
+If deployment fails, you might need to forcefully reinstall tiller, you can delete the deployment and reinstall
+
+```
+kubectl delete deployment tiller-deploy --namespace kube-system
+```
+
+Also, check the kube-system configmaps, make sure there aren't too much historical releases (we limit to 2, so it shouldn't happen)
+
+```
+kubectl get configmap --namespace=kube-system
+```
 
 
 ## Helm configuration values
@@ -339,4 +351,54 @@ git clone git@github.com:midburn/midburn-k8s.git
 
 ```
 helm delete midburn --purge
+```
+
+
+## Shared / Persistent Storage
+
+Shared / Persistent storage is available by a dedicated storage instance which pods can connect to using NFS.
+
+Following method can be used to migrate existing data or to create a new persistent storage volume
+
+SSH to the storage node
+
+```
+gcloud compute ssh midburn-k8s-persistent-storage-vm
+```
+
+Following should run as your personal user account under the storage node:
+
+```
+mkdir -p /data/<ENVIRONMENT_NAME>/<STORAGE_NAME>
+```
+
+At this point you can optionally migrate data from an existing pod (you will need to connect to the environment from the storage node)
+
+```
+gcloud auth login
+git clone https://github.com/Midburn/midburn-k8s.git ~/midburn-k8s
+cd ~/midburn-k8s
+source switch_environment.sh <ENVIRONMENT_NAME>
+kubectl cp <POD_NAME>:/path/to/data /data/<ENVIRONMENT_NAME>/<STORAGE_NAME>
+```
+
+Make sure data directory has correct permissions
+
+```
+sudo chown -R root:root /data/<ENVIRONMENT_NAME>/<STORAGE_NAME>
+```
+
+Use the volume in a pod
+
+```
+      {{ if .Values.global.persistentStorageIP }}
+        volumeMounts:
+        - name: <STORAGE_NAME>
+          mountPath: /path/to/data
+      volumes:
+      - name: <STORAGE_NAME>
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/<STORAGE_NAME>"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 ```
