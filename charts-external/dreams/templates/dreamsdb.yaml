@@ -31,11 +31,65 @@ spec:
         resources:
           requests:
             cpu: 20m
+        {{ if .Values.importDB }}
+        command:
+        - bash
+        - "-c"
+        - |
+          docker-entrypoint.sh postgres &
+          echo waiting for db...
+          while ! su postgres -c "psql -c 'select 1;'"; do sleep 1; echo .; done
+          echo db is ready
+          if ! su postgres -c "psql -d dreams -c 'select 1 from users;'"; then
+            echo creating role
+            su postgres -c "psql -c 'CREATE ROLE masterdreamer;'"
+            echo importing from other DB...
+            importdb_pgexec() { PGPASSWORD="${IMPORT_DB_PASSWORD}" "${1}" -h "${IMPORT_DB_HOST}" -p "${IMPORT_DB_PORT}" -U ${IMPORT_DB_USER} -d "${IMPORT_DB_DATABASE}" "${@:2}";}
+            ! importdb_pgexec psql -c "select 1 from users limit 1;" >/dev/null && echo failed to connect to import db && exit 1
+            echo connected successfully, getting dump of import db...
+            ! importdb_pgexec pg_dump > pgdump && echo failed to get dump from import db && exit 1
+            echo importing dump to local db...
+            ! su postgres -c "psql -f /pgdump" && echo failed to import from dump && exit 1
+          else
+            echo db already exists, not importing
+          fi
+          echo great success!
+          while true; do sleep 86400; done
+        {{ end }}
         env:
         - name: POSTGRES_USER
           value: dreams
         - name: POSTGRES_DB
           value: dreams
         - name: POSTGRES_PASSWORD
+        {{ if .Values.enableSecrets }}
+          valueFrom:
+            secretKeyRef:
+              name: dreamsdb
+              key: POSTGRES_PASSWORD
+        {{ else }}
           value: "123456"
+        {{ end }}
+        {{ if .Values.importDB }}
+        - name: IMPORT_DB_HOST
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"HOST"}}
+        - name: IMPORT_DB_USER
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"USER"}}
+        - name: IMPORT_DB_PASSWORD
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PASSWORD"}}
+        - name: IMPORT_DB_PORT
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PORT"}}
+        - name: IMPORT_DB_DATABASE
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"DATABASE"}}
+        {{ end }}
+      {{ if .Values.persistentStorageName }}
+        volumeMounts:
+        - name: dreamsdb
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: dreamsdb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}
