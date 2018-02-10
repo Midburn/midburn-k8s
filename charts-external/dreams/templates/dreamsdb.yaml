@@ -41,15 +41,18 @@ spec:
           while ! su postgres -c "psql -c 'select 1;'"; do sleep 1; echo .; done
           echo db is ready
           if ! su postgres -c "psql -d dreams -c 'select 1 from users;'"; then
-            echo creating role
-            su postgres -c "psql -c 'CREATE ROLE masterdreamer;'"
+            echo creating user
+            ! su postgres -c "createuser ${IMPORT_DB_USER}" && echo failed to create user && exit 1
+            ! su postgres -c 'psql -c "alter role ${IMPORT_DB_USER} with password '"'${IMPORT_DB_PASSWORD}'"';"' \
+            ! su postgres -c 'psql -c "create database ${IMPORT_DB_DATABASE};"' \
+              && echo failed to create db && exit 1
             echo importing from other DB...
             importdb_pgexec() { PGPASSWORD="${IMPORT_DB_PASSWORD}" "${1}" -h "${IMPORT_DB_HOST}" -p "${IMPORT_DB_PORT}" -U ${IMPORT_DB_USER} -d "${IMPORT_DB_DATABASE}" "${@:2}";}
             ! importdb_pgexec psql -c "select 1 from users limit 1;" >/dev/null && echo failed to connect to import db && exit 1
             echo connected successfully, getting dump of import db...
             ! importdb_pgexec pg_dump > pgdump && echo failed to get dump from import db && exit 1
             echo importing dump to local db...
-            ! su postgres -c "psql -f /pgdump" && echo failed to import from dump && exit 1
+            ! su postgres -c "psql -d ${IMPORT_DB_DATABASE} -f /pgdump" && echo failed to import from dump && exit 1
           else
             echo db already exists, not importing
           fi
@@ -57,20 +60,8 @@ spec:
           while true; do sleep 86400; done
         {{ end }}
         env:
-        - name: POSTGRES_USER
-          value: dreams
-        - name: POSTGRES_DB
-          value: dreams
-        - name: POSTGRES_PASSWORD
-        {{ if .Values.enableSecrets }}
-          valueFrom:
-            secretKeyRef:
-              name: dreamsdb
-              key: POSTGRES_PASSWORD
-        {{ else }}
-          value: "123456"
-        {{ end }}
         {{ if .Values.importDB }}
+        # when importing from other DB, we use same user credentials as in imported DB
         - name: IMPORT_DB_HOST
           valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"HOST"}}
         - name: IMPORT_DB_USER
@@ -81,6 +72,14 @@ spec:
           valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PORT"}}
         - name: IMPORT_DB_DATABASE
           valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"DATABASE"}}
+        {{ else }}
+        # this creates a new, empty DB for development / testing
+        - name: POSTGRES_USER
+          value: masterdreamer
+        - name: POSTGRES_DB
+          value: dreams
+        - name: POSTGRES_PASSWORD
+          value: "123456"
         {{ end }}
       {{ if .Values.persistentStorageName }}
         volumeMounts:

@@ -24,6 +24,8 @@ traefik:
       main = "volunteers.staging.midburn.org"
     [[acme.domains]]
       main = "profiles.staging.midburn.org"
+    [[acme.domains]]
+      main = "dreams.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
@@ -38,6 +40,7 @@ traefik:
   backupJob: true
   enableLoadBalancer: true
   profilesHostsRule: "Host: profiles.staging.midburn.org;"
+  dreamsHostsRule: "Host: dreams.staging.midburn.org;"
 #  SSLcheckMainDomain: staging.midburn.org
 #  SSLcheckSparkDomain: spark.staging.midburn.org
 #  SSLcheckProfilesDomain: profiles.staging.midburn.org
@@ -97,7 +100,6 @@ bi:
 dreams:
   enabled: true
   enableSecrets: true
-  importDB: true
   APP_URL: https://dreams.staging.midburn.org/
   # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
   persistentStorageName: dreamsdb

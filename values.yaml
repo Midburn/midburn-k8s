@@ -36,3 +36,6 @@ bi:
   metabasePostgresqlResources: >
     {"requests": {"cpu": "20m", "memory": "200Mi"}, "limits": {"cpu": "50m", "memory": "500Mi"}}
   JAVA_TIMEZONE: Asia/Jerusalem
+
+dreams:
+  enableDeployment: true

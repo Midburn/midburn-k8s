@@ -64,6 +64,12 @@ data:
           url = "http://profiles-drupal"
       {{ end }}
 
+      {{ if .Values.dreams.enabled }}
+      [backends.dreams]
+        [backends.dreams.servers.server1]
+          url = "http://dreams:3000"
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -93,6 +99,14 @@ data:
         passHostHeader = true
           [frontends.profiles.routes.route1]
             rule = "{{ .Values.traefik.profilesHostsRule }}"
+      {{ end }}
+
+      {{ if .Values.dreams.enabled }}
+      [frontends.dreams]
+        backend="dreams"
+        passHostHeader = true
+          [frontends.dreams.routes.route1]
+            rule = "{{ .Values.traefik.dreamsHostsRule }}"
       {{ end }}
 
 {{ end }}

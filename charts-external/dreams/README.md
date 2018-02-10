@@ -17,4 +17,12 @@ Contains the Dreams web-app, DB and associated scripts
                                        --from-literal=SECRET_KEY_BASE=*** \
                                        --from-literal=SENDGRID_PASSWORD=*** \
                                        --from-literal=SENDGRID_USERNAME=***
+
+  kubectl create secret generic dreams-otherdb --from-literal=HOST=*** \
+                                               --from-literal=USER=*** \
+                                               --from-literal=PASSWORD=*** \
+                                               --from-literal=PORT=*** \
+                                               --from-literal=DATABASE=***
+
+kubectl create secret generic dreamsdb --from-literal=DATABASE_URL=postgres://***:***@***:5432/***
 ```
