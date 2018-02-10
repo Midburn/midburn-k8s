@@ -8,6 +8,8 @@ metadata:
 spec:
   schedule: "@daily"
   concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:

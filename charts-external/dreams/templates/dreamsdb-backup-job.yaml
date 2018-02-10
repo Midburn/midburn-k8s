@@ -1,0 +1,64 @@
+{{ if .Values.enabled }}{{ if .Values.dbBackupJob }}
+#apiVersion: batch/v1
+#kind: Job
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: dreamsdb-backup
+spec:
+  schedule: "@daily"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: dreamsdb-backup
+        spec:
+          containers:
+          - name: ops
+            image: orihoch/sk8s-ops:postgresql10
+            resources:
+              requests:
+                cpu: "0.01"
+                memory: "10Mi"
+            command:
+            - bash
+            - "-c"
+            - |
+              source ~/.bashrc;
+              EXPORT_URL="gs://{{ .Values.global.projectName }}-k8s-backups/dreamsdb-{{ .Values.global.environmentName }}-dump-`date +%Y-%m-%d-%H-%M`.sql"
+              echo "EXPORT_URL=${EXPORT_URL}"
+              gcloud config set project "{{ .Values.global.googleProjectId }}" &&\
+              PGPASSWORD="${PASS}" pg_dump -h "dreamsdb" -p "5432" -U ${USER} -d "${DB}" > pgdump.sql &&\
+              ls -lah pgdump.sql &&\
+              gsutil cp pgdump.sql "${EXPORT_URL}" &&\
+              echo "Great Success!"
+            env:
+            {{ if .Values.importDB }}
+            - name: USER
+              valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"USER"}}
+            - name: PASS
+              valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PASSWORD"}}
+            - name: DB
+              valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"DATABASE"}}
+            {{ else }}
+            # this creates a new, empty DB for development / testing
+            - name: USER
+              value: masterdreamer
+            - name: DB
+              value: dreamdb
+            - name: PASS
+              value: "123456"
+            {{ end }}
+            volumeMounts:
+            - name: k8s-ops
+              mountPath: /k8s-ops
+              readOnly: true
+          volumes:
+          - name: k8s-ops
+            secret:
+              secretName: ops
+          restartPolicy: Never
+{{ end }}{{ end }}

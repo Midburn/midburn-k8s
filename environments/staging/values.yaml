@@ -104,3 +104,4 @@ dreams:
   APP_URL: https://dreams.staging.midburn.org/
   # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
   persistentStorageName: dreamsdb
+  dbBackupJob: true
