@@ -2,6 +2,9 @@
 
 Contains the Dreams web-app, DB and associated scripts
 
+* Dreams Staging: https://dreams.staging.midbun.org/
+* Dreams Production: **TODO**
+
 ## Secrets
 
 ```

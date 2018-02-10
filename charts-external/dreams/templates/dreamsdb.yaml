@@ -40,15 +40,17 @@ spec:
           echo waiting for db...
           while ! su postgres -c "psql -c 'select 1;'"; do sleep 1; echo .; done
           echo db is ready
-          if ! su postgres -c "psql -d dreams -c 'select 1 from users;'"; then
-            echo creating user
-            ! su postgres -c "createuser ${IMPORT_DB_USER}" && echo failed to create user && exit 1
-            ! su postgres -c 'psql -c "alter role ${IMPORT_DB_USER} with password '"'${IMPORT_DB_PASSWORD}'"';"' \
+          echo creating user
+          ! su postgres -c "createuser ${IMPORT_DB_USER}" && echo WARNING failed to create user
+          ! su postgres -c 'psql -c "alter role ${IMPORT_DB_USER} with password '"'${IMPORT_DB_PASSWORD}'"';"' \
+            && echo WARNING failed to alter role
+          if ! su postgres -c "psql -d ${IMPORT_DB_DATABASE} -c 'select 1 from users limit 1;'"; then
+            echo creating DB
             ! su postgres -c 'psql -c "create database ${IMPORT_DB_DATABASE};"' \
               && echo failed to create db && exit 1
             echo importing from other DB...
             importdb_pgexec() { PGPASSWORD="${IMPORT_DB_PASSWORD}" "${1}" -h "${IMPORT_DB_HOST}" -p "${IMPORT_DB_PORT}" -U ${IMPORT_DB_USER} -d "${IMPORT_DB_DATABASE}" "${@:2}";}
-            ! importdb_pgexec psql -c "select 1 from users limit 1;" >/dev/null && echo failed to connect to import db && exit 1
+            ! importdb_pgexec psql -c "select 1 from users limit 1;" && echo failed to connect to import db && exit 1
             echo connected successfully, getting dump of import db...
             ! importdb_pgexec pg_dump > pgdump && echo failed to get dump from import db && exit 1
             echo importing dump to local db...
@@ -77,14 +79,14 @@ spec:
         - name: POSTGRES_USER
           value: masterdreamer
         - name: POSTGRES_DB
-          value: dreams
+          value: dreamdb
         - name: POSTGRES_PASSWORD
           value: "123456"
         {{ end }}
       {{ if .Values.persistentStorageName }}
         volumeMounts:
         - name: dreamsdb
-          mountPath: /var/lib/mysql
+          mountPath: /var/lib/postgresql/data
       volumes:
       - name: dreamsdb
         nfs:
