@@ -1,4 +1,4 @@
-{{ if .Values.enabled }}
+{{ if .Values.enabled }}{{ if .Values.enableDeployment }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -41,7 +41,7 @@ spec:
         - name: CREW_SIZE
           value: "true"
         - name: DATABASE_URL
-          value: postgres://dreamsdb
+          valueFrom: {"secretKeyRef":{"name":"dreamsdb", "key":"DATABASE_URL"}}
         - name: DISABLE_EDITING_DREAM
           value: "false"
         - name: EMAIL_FROM
@@ -98,4 +98,4 @@ spec:
           value: https://spark.midburn.org/api/userlogin
         - name: TZ
           value: Asia/Jerusalem
-{{ end }}
+{{ end }}{{ end }}

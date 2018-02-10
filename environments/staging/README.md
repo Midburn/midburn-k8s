@@ -9,8 +9,9 @@
   * Deployed on push to `develop` branch of https://github.com/Midburn/Volunteers
 * Volunteers DB UI - https://staging.midburn.org/volunteers/mongoexpress
 * Profiles - https://profiles.staging.midburn.org/
-  * DEployed on push to `master` branch of https://github.com/orihoch/midburn-profiles-drupal
+  * Deployed on push to `master` branch of https://github.com/orihoch/midburn-profiles-drupal
 * Profiles Adminer - https://staging.midburn.org/profiles/adminer
+* Dreams - https://dreams.staging.midbun.org/
 
 ## Secrets
 

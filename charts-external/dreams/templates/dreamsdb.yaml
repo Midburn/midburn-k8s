@@ -31,11 +31,66 @@ spec:
         resources:
           requests:
             cpu: 20m
+        {{ if .Values.importDB }}
+        command:
+        - bash
+        - "-c"
+        - |
+          docker-entrypoint.sh postgres &
+          echo waiting for db...
+          while ! su postgres -c "psql -c 'select 1;'"; do sleep 1; echo .; done
+          echo db is ready
+          echo creating user
+          ! su postgres -c "createuser ${IMPORT_DB_USER}" && echo WARNING failed to create user
+          ! su postgres -c 'psql -c "alter role ${IMPORT_DB_USER} with password '"'${IMPORT_DB_PASSWORD}'"';"' \
+            && echo WARNING failed to alter role
+          if ! su postgres -c "psql -d ${IMPORT_DB_DATABASE} -c 'select 1 from users limit 1;'"; then
+            echo creating DB
+            ! su postgres -c 'psql -c "create database ${IMPORT_DB_DATABASE};"' \
+              && echo failed to create db && exit 1
+            echo importing from other DB...
+            importdb_pgexec() { PGPASSWORD="${IMPORT_DB_PASSWORD}" "${1}" -h "${IMPORT_DB_HOST}" -p "${IMPORT_DB_PORT}" -U ${IMPORT_DB_USER} -d "${IMPORT_DB_DATABASE}" "${@:2}";}
+            ! importdb_pgexec psql -c "select 1 from users limit 1;" && echo failed to connect to import db && exit 1
+            echo connected successfully, getting dump of import db...
+            ! importdb_pgexec pg_dump > pgdump && echo failed to get dump from import db && exit 1
+            echo importing dump to local db...
+            ! su postgres -c "psql -d ${IMPORT_DB_DATABASE} -f /pgdump" && echo failed to import from dump && exit 1
+          else
+            echo db already exists, not importing
+          fi
+          echo great success!
+          while true; do sleep 86400; done
+        {{ end }}
         env:
+        {{ if .Values.importDB }}
+        # when importing from other DB, we use same user credentials as in imported DB
+        - name: IMPORT_DB_HOST
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"HOST"}}
+        - name: IMPORT_DB_USER
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"USER"}}
+        - name: IMPORT_DB_PASSWORD
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PASSWORD"}}
+        - name: IMPORT_DB_PORT
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"PORT"}}
+        - name: IMPORT_DB_DATABASE
+          valueFrom: {"secretKeyRef":{"name":"dreams-otherdb", "key":"DATABASE"}}
+        {{ else }}
+        # this creates a new, empty DB for development / testing
         - name: POSTGRES_USER
-          value: dreams
+          value: masterdreamer
         - name: POSTGRES_DB
-          value: dreams
+          value: dreamdb
         - name: POSTGRES_PASSWORD
           value: "123456"
+        {{ end }}
+      {{ if .Values.persistentStorageName }}
+        volumeMounts:
+        - name: dreamsdb
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: dreamsdb
+        nfs:
+          path: "/data/{{ .Values.global.environmentName }}/{{ .Values.persistentStorageName }}"
+          server: {{ .Values.global.persistentStorageIP | quote }}
+      {{ end }}
 {{ end }}
