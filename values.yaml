@@ -22,6 +22,7 @@ spark:
   enableDeployment: true
   sparkDbResources: >
     {"requests": {"cpu": "100m", "memory": "600Mi"}, "limits": {"cpu": "200m", "memory": "1500Mi"}}
+  enableDbInit: true
 
 traefik:
   enabled: true

@@ -29,6 +29,7 @@ spec:
         ports:
         - {containerPort: 3306}
         resources: {{ .Values.sparkDbResources }}
+        {{ if .Values.enableDbInit }}
         {{ if .Values.rootSecretName }}
         envFrom:
         # root secret - contains the mysql root password
@@ -48,6 +49,7 @@ spec:
           value: spark
         - name: MYSQL_PASSWORD
           value: spark
+        {{ end }}
         {{ end }}
       {{ if .Values.persistentStorageName }}
         volumeMounts:

@@ -51,6 +51,7 @@ spark:
   # DB
   rootSecretName: sparkdb-root
   appSecretName: sparkdb-app
+  enableDbInit: false
   dbBackupJob: true
   # persistent storage was setup using environments/staging/persistent_storage_migration.sh
   persistentStorageName: sparkdb
