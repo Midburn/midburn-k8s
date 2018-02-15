@@ -1,3 +1,5 @@
+chatops:
+  image: gcr.io/midbarrn/midburn-chatops-cd:f232d7427df47e7d350637e115f8eb3e09b775c7
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
