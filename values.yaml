@@ -40,3 +40,7 @@ bi:
 
 dreams:
   enableDeployment: true
+
+chatops:
+  resources: >
+    {"requests": {"cpu": "100m", "memory": "150Mi"}, "limits": {"cpu": "150m", "memory": "200Mi"}}

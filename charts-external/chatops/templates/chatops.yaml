@@ -1,0 +1,42 @@
+{{ if .Values.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: chatops
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: chatops
+    spec:
+      terminationGracePeriodSeconds: 2
+      containers:
+      - name: chatops
+        image: {{ .Values.image }}
+        env:
+        - name: slack_token_path
+          value: /chatops-secrets/secret-slack-token
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc
+          cd /src
+          npm start
+        resources: {{ .Values.resources }}
+        volumeMounts:
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+        - name: chatops
+          mountPath: /chatops-secrets
+          readOnly: true
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: ops
+      - name: chatops
+        secret:
+          secretName: chatops
+{{ end }}

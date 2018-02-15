@@ -98,3 +98,6 @@ bi:
 dreams:
   enabled: false
   APP_URL: https://dreams.midburn.org/
+
+chatops:
+  enabled: true
