@@ -1,0 +1,14 @@
+{{ if .Values.enabled }}{{ if .Values.sparkAutoscaler.enabled }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: spark
+spec:
+  maxReplicas: {{ .Values.sparkAutoscaler.maxReplicas }}
+  minReplicas: {{ .Values.sparkAutoscaler.minReplicas }}
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: spark
+  targetCPUUtilizationPercentage: {{ .Values.sparkAutoscaler.targetCPUUtilizationPercentage }}
+{{ end }}{{ end }}

@@ -27,6 +27,8 @@ spark:
   migrationsResources: >
     {"requests": {"cpu": "10m", "memory": "50Mi"}, "limits": {"cpu": "200m", "memory": "600Mi"}}
   enableDbInit: true
+  sparkAutoscaler:
+    enabled: false
 
 traefik:
   enabled: true
