@@ -37,10 +37,7 @@ spec:
             touch /migrations/failed
             exit 1
           fi
-        resources:
-          requests:
-            cpu: "0.001"
-            memory: "10Mi"
+        resources: {{ .Values.migrationsResources }}
         envFrom: [{"configMapRef": {"name": "spark"}}]
         env:
         {{ if .Values.appSecretName }}
@@ -76,9 +73,7 @@ spec:
             echo "waiting for migrations..."
             sleep 5
           done
-        resources:
-          requests:
-            cpu: 20m
+        resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "spark"}}]
         env:
         {{ if .Values.appSecretName }}
