@@ -55,18 +55,20 @@ kubectl create -f $TEMPDIR/job.yaml
 
 rm -rf $TEMPDIR
 
-while ! kubectl get job sparkdb-import-${JOB_SUFFIX}; do
-    sleep 2
-    printf .
-done
-echo
-while true; do
-    POD_NAME=`kubectl get pods | grep sparkdb-import-20180220- | grep ' Running ' | cut -d" " -f1 -`
-    ! [ -z "${POD_NAME}" ] && break
-    sleep 5
-done
+if [ "${WAIT_FOR_COMPLETION:-yes}" == "yes" ]; then
+    while ! kubectl get job sparkdb-import-${JOB_SUFFIX}; do
+        sleep 2
+        printf .
+    done
+    echo
+    while true; do
+        POD_NAME=`kubectl get pods | grep sparkdb-import-20180220- | grep ' Running ' | cut -d" " -f1 -`
+        ! [ -z "${POD_NAME}" ] && break
+        sleep 5
+    done
 
-sleep 10
-kubectl logs "${POD_NAME}"
+    sleep 10
+    kubectl logs "${POD_NAME}"
+fi
 
 exit 0
