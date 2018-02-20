@@ -21,7 +21,7 @@ spark:
   image: orihoch/spark:modernize-dockerize
   enableDeployment: true
   sparkDbResources: >
-    {"requests": {"cpu": "100m", "memory": "600Mi"}, "limits": {"cpu": "200m", "memory": "1500Mi"}}
+    {"requests": {"cpu": "300m", "memory": "600Mi"}, "limits": {"cpu": "600m", "memory": "1500Mi"}}
   resources: >
     {"requests": {"cpu": "100m", "memory": "300Mi"}, "limits": {"cpu": "200m", "memory": "600Mi"}}
   migrationsResources: >
