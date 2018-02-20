@@ -7,7 +7,7 @@ echo "Recreating DB for ${K8S_ENVIRONMENT_NAME} environment"
 [ "${ARE_YOU_SURE}" != "yes" ] && read -p "DANGER! All data in DB will be lost! Press <Enter> to continue"
 
 TEMPDIR=`mktemp -d`
-JOB_SUFFIX=`date +%Y%m%d`
+JOB_SUFFIX=`date +%Y%m%d%H%M%S`
 
 echo 'apiVersion: batch/v1
 kind: Job
