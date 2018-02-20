@@ -102,26 +102,7 @@ spark:
 
 ## Restore from existing DB dump
 
-Create the dump from the source DB and upload to Google Storage
+Daily dumps are uploaded to google storage
 
-```
-mysqldump --host=<HOST> --port=3306 --protocol=tcp --user=<ROOT_USER> --password=<ROOT_PASSWORD> \
-          --all-databases > "sparkdb-dump-`date +%Y-%m-%d-%H-%M`.sql"
-gsutil mb gs://midburn-db-dumps/
-gsutil cp "sparkdb-dump-`date +%Y-%m-%d-%H-%M`.sql" gs://midburn-db-dumps/
-```
+Import from a dump using `charts-external/spark/recreate_db.sh`
 
-Set the values
-
-```
-spark:
-  dbImportOpsImage: orihoch/midburn-k8s@sha256:d646e3ea874043dc37ea22ab8b59ffde2f6ffc69e6543801b64122c963e5c5b9
-  dbImportJobSuffix: "2017-12-16-08-10"
-  dbImportUrl: "gs://midburn-db-dumps/spark-staging-db-dump-2017-12-16-08-10.sql"
-```
-
-Deploy - `./helm_upgrade.sh`
-
-Wait for import job to complete - `kubectl describe job sparkdb-import-2017-12-16-08-10`
-
-Get the job logs (the pod id appears at the bottom of the job describe output) - `kubectl logs <JOB_POD_ID>`
