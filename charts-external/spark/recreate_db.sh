@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-IMPORT_URL="${1}"
-[ -z "${IMPORT_URL}" ] && echo "Usage: charts-external/spark/recreate_db.sh <IMPORT_URL>" && exit 1
+IMPORT_SUFFIX="${1}"
+[ -z "${IMPORT_SUFFIX}" ] && echo "Usage: charts-external/spark/recreate_db.sh IMPORT_SUFFIX" && exit 1
 
 echo "Recreating DB for ${K8S_ENVIRONMENT_NAME} environment"
 [ "${ARE_YOU_SURE}" != "yes" ] && read -p "DANGER! All data in DB will be lost! Press <Enter> to continue"
 
 TEMPDIR=`mktemp -d`
 JOB_SUFFIX=`date +%Y%m%d%H%M%S`
+
+IMPORT_URL="gs://midburn-k8s-backups/sparkdb-staging-dump-${IMPORT_SUFFIX}.sql"
 
 echo 'apiVersion: batch/v1
 kind: Job
