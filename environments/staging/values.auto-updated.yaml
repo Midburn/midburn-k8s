@@ -1,7 +1,7 @@
 chatops:
   image: gcr.io/midbarrn/midburn-chatops-cd:87918a8e169c114104ec19061dac2d8c2cd51432
 dreams:
-  image: gcr.io/midbarrn/midburn-dreams-cd:81fc24c0709242f922f3737ef40810c78b322919
+  image: gcr.io/midbarrn/midburn-dreams-cd:41bf199fcf6387689556991b3c9d4dd0ec7ad8ad
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
