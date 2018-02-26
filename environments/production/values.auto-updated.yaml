@@ -3,6 +3,6 @@ chatops:
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
-  image: gcr.io/midbarrn/midburn-spark-tag:v2.10.15
+  image: gcr.io/midbarrn/midburn-spark-tag:v2.10.16
 volunteers:
   image: gcr.io/midbarrn/midburn-volunteers-cd:0a76f66dbd3a01c2f7599089f9cec0fcbb782a5a
