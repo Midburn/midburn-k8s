@@ -49,8 +49,6 @@ spec:
         - {"name": "SPARK_DB_USER", "value": "spark"}
         - {"name": "SPARK_DB_PASSWORD", "value": "spark"}
         {{ end }}
-        - {"name":"AWS_ACCESS_KEY", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_ACCESS_KEY"}}}
-        - {"name": "AWS_SECRET_KEY", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_SECRET_KEY"}}}
         volumeMounts:
         - name: migrations
           mountPath: /migrations
@@ -111,6 +109,8 @@ spec:
             secretKeyRef:
               name: slack-deploy-webhook
               key: SLACK_DEPLOY_WEBHOOK
+        - {"name":"AWS_ACCESS_KEY_ID", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_ACCESS_KEY"}}}
+        - {"name": "AWS_SECRET_ACCESS_KEY", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_SECRET_KEY"}}}
         readinessProbe:
           exec:
             command:
