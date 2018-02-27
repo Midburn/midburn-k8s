@@ -24,8 +24,6 @@ spec:
         # update the pod on nginx-conf changes
         checksum/config: {{ include (print $.Template.BasePath "/nginx-conf.yaml") . | sha256sum }}
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: nginx
         image: nginx:alpine

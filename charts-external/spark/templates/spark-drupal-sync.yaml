@@ -10,8 +10,6 @@ spec:
       labels:
         app: spark-drupal-sync
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: spark
         image: {{ .Values.image | default "orihoch/spark:modernize-dockerize" | quote }}

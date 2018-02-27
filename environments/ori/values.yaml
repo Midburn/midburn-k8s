@@ -1,7 +1,6 @@
 # minimal values files for testing - enable just what you need and copy required values from staging environment
 
 global:
-  defaultNodePool: default-pool
   k8sOpsSecretName: ops
   k8sOpsImage: gcr.io/uumpa123/midburn-k8s
   environmentName: ori
@@ -15,28 +14,25 @@ global:
   persistentStorageIP: 10.128.0.7
 
 traefik:
-  enabled: false
+  enabled: true
   enableLoadBalancer: false
   profilesHostsRule: ""
 
 spark:
   enabled: true
-  enableDeployment: false
-  # see Shared / Persistent Storage section in the README to prepare the storage / import existing data
-  persistentStorageName: sparkdb
+  enableDeployment: true
+  enableSecrets: false
 
 nginx:
   enabled: true
   htpasswdSecretName: nginx-htpasswd
 
 volunteers:
-  enabled: false
+  enabled: true
+  enableSecrets: false
 
 profiles:
-  enabled: false
-  # dbImportUrl: gs://midburn-k8s-backups/profiles-db-production-dump-2018-01-16-11-30.sql
-  # NO trailing slash!
-  # drupalBaseUrl: http://localhost
+  enabled: true
 
 bi:
   enabled: true

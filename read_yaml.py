@@ -7,6 +7,8 @@ with open(filename) as f:
     values = yaml.load(f)
 
 def get_from_dict(values, keys):
+    if len(keys) < 1:
+        return '{}'
     if len(keys) > 1:
         return get_from_dict(values[keys[0]], keys[1:])
     else:

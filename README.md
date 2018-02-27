@@ -71,25 +71,37 @@ kubectl create -f rbac-config.yaml
 helm init --service-account tiller --upgrade --force-upgrade --history-max 1
 ```
 
-Deploy:
+To do a full installation of all charts (after a dry run):
+
+```
+./helm_upgrade_all.sh --install --dry-run && ./helm_upgrade_all.sh --install
+```
+
+If you are working on a specific chart you can deploy only that chart:
+
+```
+./helm_upgrade_external_chart.sh CHART_NAME
+```
+
+The root infrastructure chart is deployed by:
 
 ```
 ./helm_upgrade.sh
 ```
 
-When helm upgrade command completes successfully it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
+All the helm upgrade commands use the underlying `helm upgrade` command
 
-Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
-
-You can add arguments to `./helm_upgrade.sh` which are forwarded to the underlying `helm upgrade` command.
-
-Check [the Helm documentation](https://docs.helm.sh/) for more details.
-
-Some useful arguments:
+All additional arguments are forwarded, some useful arguments:
 
 * For initial installation you should add `--install`
 * Depending on the changes you might need to add `--recreate-pods` or `--force`
 * For debugging you can also use `--debug` and `--dry-run`
+
+When helm upgrade command completes successfully it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
+
+Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
+
+Check [the Helm documentation](https://docs.helm.sh/) for more details.
 
 Additionally, you can to use `force_update.sh` to force an update on a specific deployment.
 

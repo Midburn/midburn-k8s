@@ -29,12 +29,14 @@ spark:
   enableDbInit: true
   sparkAutoscaler:
     enabled: false
+  enableSecrets: true
 
 traefik:
   enabled: true
 
 volunteers:
   enabled: true
+  enableSecrets: true
 
 bi:
   enabled: false
@@ -43,7 +45,6 @@ bi:
   metabasePostgresqlResources: >
     {"requests": {"cpu": "20m", "memory": "200Mi"}, "limits": {"cpu": "50m", "memory": "500Mi"}}
   JAVA_TIMEZONE: Asia/Jerusalem
-  persistentStorageName: metabase
 
 dreams:
   enableDeployment: true
