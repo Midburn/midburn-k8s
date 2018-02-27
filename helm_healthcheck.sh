@@ -9,50 +9,49 @@ echo "Performing health checks for all charts of ${K8S_ENVIRONMENT_NAME} environ
 root_healthcheck() {
     ! [ "`./read_env_yaml.sh global enableRootChart`" == "true" ] \
         && echo "root chart is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/adminer --watch=false &&\
-    kubectl rollout status deployment/nginx --watch=false &&\
-    kubectl rollout status deployment/traefik --watch=false
+    kubectl rollout status deployment/adminer &&\
+    kubectl rollout status deployment/nginx &&\
+    kubectl rollout status deployment/traefik
 }
 
 spark_healthcheck() {
     ! [ "`./read_env_yaml.sh spark enabled`" == "true" ] \
         && echo "spark is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/spark --watch=false &&\
-    kubectl rollout status deployment/sparkdb --watch=false
+    kubectl rollout status deployment/spark &&\
+    kubectl rollout status deployment/sparkdb
 }
 
 volunteers_healthcheck() {
     ! [ "`./read_env_yaml.sh volunteers enabled`" == "true" ] \
         && echo "volunteers is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/volunteers --watch=false &&\
-    kubectl rollout status deployment/volunteersdb --watch=false
-
+    kubectl rollout status deployment/volunteers &&\
+    kubectl rollout status deployment/volunteersdb
 }
 
 bi_healthcheck() {
     ! [ "`./read_env_yaml.sh bi enabled`" == "true" ] \
         && echo "bi is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/metabase --watch=false
+    kubectl rollout status deployment/metabase
 
 }
 
 profiles_healthcheck() {
     ! [ "`./read_env_yaml.sh profiles enabled`" == "true" ] \
         && echo "profiles is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/profiles-drupal --watch=false &&\
-    kubectl rollout status deployment/profiles-db --watch=false
+    kubectl rollout status deployment/profiles-drupal &&\
+    kubectl rollout status deployment/profiles-db
 }
 
 chatops_healthcheck() {
     ! [ "`./read_env_yaml.sh chatops enabled`" == "true" ] \
         && echo "chatops is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/chatops --watch=false
+    kubectl rollout status deployment/chatops
 }
 
 dreams_healthcheck() {
     ! [ "`./read_env_yaml.sh dreams enabled`" == "true" ] \
         && echo "dreams is disabled, skipping healthcheck" && return 0
-    kubectl rollout status deployment/dreams --watch=false
+    kubectl rollout status deployment/dreams
 }
 
 ! root_healthcheck && echo failed root healthcheck && RES=1;
