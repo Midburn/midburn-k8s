@@ -100,6 +100,7 @@ profiles:
 
 bi:
   enabled: true
+  persistentStorageName:
 
 dreams:
   enabled: false

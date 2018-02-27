@@ -39,10 +39,11 @@ volunteers:
 bi:
   enabled: false
   metabaseResources: >
-    {"requests": {"cpu": "500m", "memory": "1500Mi"}, "limits": {"cpu": "1", "memory": "2500Mi"}}
+    {"requests": {"cpu": "500m", "memory": "1500Mi"}, "limits": {"cpu": "700m", "memory": "2500Mi"}}
   metabasePostgresqlResources: >
     {"requests": {"cpu": "20m", "memory": "200Mi"}, "limits": {"cpu": "50m", "memory": "500Mi"}}
   JAVA_TIMEZONE: Asia/Jerusalem
+  persistentStorageName: metabase
 
 dreams:
   enableDeployment: true
