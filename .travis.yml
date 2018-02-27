@@ -27,6 +27,7 @@ script:
          if ./helm_upgrade_all.sh --install --dry-run --debug; then
            echo Dry run was successfull, performing upgrades
            ! ./helm_upgrade_all.sh --install && echo Failed upgrade && RES=1
+           ! ./helm_healthcheck.sh && echo Failed healthcheck && RES=1
          else
            echo Failed dry run
            RES=1
