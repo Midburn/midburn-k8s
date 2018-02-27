@@ -110,6 +110,9 @@ spec:
               key: SLACK_DEPLOY_WEBHOOK
         - {"name":"AWS_ACCESS_KEY_ID", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_ACCESS_KEY"}}}
         - {"name": "AWS_SECRET_ACCESS_KEY", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_SECRET_KEY"}}}
+        - {"name": "SPARK_CAMP_FILES_BUCKET", "valueFrom": {"configMapKeyRef": {"name": "spark", "key": "SPARK_CAMP_FILES_BUCKET"}}}
+        - {"name": "SPARK_CAMP_FILES_REGION", "valueFrom": {"configMapKeyRef": {"name": "spark", "key": "SPARK_CAMP_FILES_REGION"}}}
+        - {"name": "SPARK_CAMP_FILES_PRESIGN_URL_EXPIRE_SECONDS", "valueFrom": {"configMapKeyRef": {"name": "spark", "key": "SPARK_CAMP_FILES_PRESIGN_URL_EXPIRE_SECONDS"}}}
         {{ end }}
         readinessProbe:
           exec:
