@@ -34,9 +34,6 @@ spec:
       {{ if .Values.traefik.nodeHostName }}
       nodeSelector:
         kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
-      {{ end }}{{ if .Values.traefik.nodePool }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
       {{ end }}
       initContainers:
       # initops container - copies the acme data from last backup before starting up the pod

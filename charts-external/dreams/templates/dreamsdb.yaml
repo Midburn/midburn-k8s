@@ -21,8 +21,6 @@ spec:
       labels:
         app: dreamsdb
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: dreamsdb
         image: "postgres"

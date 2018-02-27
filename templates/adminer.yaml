@@ -20,8 +20,6 @@ spec:
       labels:
         app: adminer
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: adminer
         image: adminer

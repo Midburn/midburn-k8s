@@ -1,5 +1,4 @@
 global:
-  defaultNodePool: default-pool
   k8sOpsSecretName: ops
   k8sOpsImage: gcr.io/uumpa123/midburn-k8s
   environmentName: production
@@ -100,7 +99,6 @@ profiles:
 
 bi:
   enabled: true
-  persistentStorageName:
 
 dreams:
   enabled: false

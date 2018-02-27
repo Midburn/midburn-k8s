@@ -20,8 +20,6 @@ spec:
       labels:
         app: volunteersmongoexpress
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: mongoexpress
         image: mongo-express
