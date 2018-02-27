@@ -97,6 +97,7 @@ spec:
         {{ if .Values.drupalSecretName }}
         - {"name": "DRUPAL_PROFILE_API_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.drupalSecretName | quote }}, "key": "DRUPAL_PROFILE_API_PASSWORD"}}}
         {{ end }}
+        {{ if .Values.enableSecrets }}
         - name: SPARK_SECRET_TOKEN
           valueFrom:
             secretKeyRef:
@@ -109,6 +110,7 @@ spec:
               key: SLACK_DEPLOY_WEBHOOK
         - {"name":"AWS_ACCESS_KEY_ID", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_ACCESS_KEY"}}}
         - {"name": "AWS_SECRET_ACCESS_KEY", "valueFrom": {"secretKeyRef": {"name": "spark-camp-files", "key": "AWS_SECRET_KEY"}}}
+        {{ end }}
         readinessProbe:
           exec:
             command:

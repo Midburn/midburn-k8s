@@ -99,6 +99,7 @@ profiles:
 
 bi:
   enabled: true
+  persistentStorageName: metabase
 
 dreams:
   enabled: false
