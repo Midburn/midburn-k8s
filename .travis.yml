@@ -25,11 +25,11 @@ script:
          RES=0;
          curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh;
          if ./helm_upgrade_all.sh --install --dry-run --debug; then
-          echo "Dry run was successfull, performing upgrades"
-          ! ./helm_upgrade_all.sh --install && echo "Failed upgrade" && RES=1
+           echo Dry run was successfull, performing upgrades
+           ! ./helm_upgrade_all.sh --install && echo Failed upgrade && RES=1
          else
-          echo "Failed dry run"
-          RES=1
+           echo Failed dry run
+           RES=1
          fi
          sleep 2;
          kubectl get pods --all-namespaces;
