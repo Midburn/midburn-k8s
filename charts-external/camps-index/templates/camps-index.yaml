@@ -24,7 +24,7 @@ spec:
       - name: camps
         image: {{ .Values.image | quote }}
         env:
-        - {name: LOOP_INTERVAL_SECONDS, value: "10"}
+        - {name: LOOP_INTERVAL_SECONDS, value: "600"}
         - {name: MYSQL_HOST, value: "sparkdb"}
         - {name: MYSQL_PORT, value: "3306"}
         {{ if .Values.sparkAppSecretName }}
