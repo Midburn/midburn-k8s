@@ -1,3 +1,5 @@
+camps-index:
+  image: gcr.io/midbarrn/midburn-camps-index-tag:v1.3.0
 chatops:
   image: gcr.io/midbarrn/midburn-chatops-cd:11bf6c93148b1b259ab0251e4352116eefdde56d
 global:
