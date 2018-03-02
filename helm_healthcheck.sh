@@ -54,6 +54,12 @@ dreams_healthcheck() {
     kubectl rollout status deployment/dreams
 }
 
+camps_index_healthcheck() {
+    ! [ "`./read_env_yaml.sh camps-index enabled`" == "true" ] \
+        && echo "camps index is disabled, skipping healthcheck" && return 0
+    kubectl rollout status deployment/camps-index
+}
+
 ! root_healthcheck && echo failed root healthcheck && RES=1;
 ! spark_healthcheck && echo failed spark healthcheck && RES=1;
 ! volunteers_healthcheck && echo failed volunteers healthcheck && RES=1;
@@ -61,6 +67,7 @@ dreams_healthcheck() {
 ! profiles_healthcheck && echo failed profiles healthcheck && RES=1;
 ! chatops_healthcheck && echo failed chatops healthcheck && RES=1;
 ! dreams_healthcheck && echo failed dreams healthcheck && RES=1;
+! camps_index_healthcheck && echo failed camps index healthcheck && RES=1;
 
 [ "${RES}" == "0" ] && echo Great Success!
 

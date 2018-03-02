@@ -17,6 +17,7 @@ traefik:
   enabled: true
   enableLoadBalancer: false
   profilesHostsRule: ""
+  # campsIndexPath: "/camps-2018/"
 
 spark:
   enabled: true
@@ -36,3 +37,7 @@ profiles:
 
 bi:
   enabled: true
+
+camps-index:
+  enabled: false
+  sparkAppSecretName: sparkdb-app

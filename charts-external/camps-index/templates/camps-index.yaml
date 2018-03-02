@@ -1,0 +1,70 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: camps-index
+spec:
+  selector:
+    app: camps-index
+  ports:
+  - port: 80
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: camps-index
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: camps-index
+    spec:
+      containers:
+      - name: camps
+        image: {{ .Values.image | quote }}
+        env:
+        - {name: LOOP_INTERVAL_SECONDS, value: "10"}
+        - {name: MYSQL_HOST, value: "sparkdb"}
+        - {name: MYSQL_PORT, value: "3306"}
+        {{ if .Values.sparkAppSecretName }}
+        - {"name": "MYSQL_DB", "valueFrom": {"secretKeyRef": {"name": {{ .Values.sparkAppSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
+        - {"name": "MYSQL_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.sparkAppSecretName | quote }}, "key": "MYSQL_USER"}}}
+        - {"name": "MYSQL_PASS", "valueFrom": {"secretKeyRef": {"name": {{ .Values.sparkAppSecretName | quote }}, "key": "MYSQL_PASSWORD"}}}
+        {{ else }}
+        - {"name": "MYSQL_DB", "value": "spark"}
+        - {"name": "MYSQL_USER", "value": "spark"}
+        - {"name": "MYSQL_PASS", "value": "spark"}
+        {{ end }}
+        resources: {{ .Values.resources }}
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        command:
+        - bash
+        - "-c"
+        - |
+          echo "
+          server {
+              listen       80;
+              server_name  localhost;
+              location / {
+                  root   /usr/share/nginx/html/public;
+                  index  index.html;
+              }
+              error_page 404 /404.html;
+          }
+          " > /etc/nginx/conf.d/default.conf
+          nginx -g "daemon off;"
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+        resources: {{ .Values.nginxResources }}
+      volumes:
+      - name: html
+        emptyDir: {}
+{{ end }}

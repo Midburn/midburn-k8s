@@ -41,6 +41,7 @@ traefik:
 #  SSLcheckSparkDomain: spark.midburn.org
 #  SSLcheckProfilesDomain: profile.midburn.org
 #  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
+  campsIndexPath: "/camps-2018/"
 
 spark:
   nodeEnv: production
@@ -107,3 +108,7 @@ dreams:
 
 chatops:
   enabled: true
+
+camps-index:
+  enabled: true
+  sparkAppSecretName: sparkdb-app

@@ -44,6 +44,7 @@ traefik:
 #  SSLcheckSparkDomain: spark.staging.midburn.org
 #  SSLcheckProfilesDomain: profiles.staging.midburn.org
 #  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
+  campsIndexPath: "/camps-2018/"
 
 spark:
 #  nodeEnv: production
@@ -105,3 +106,7 @@ dreams:
   # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
   persistentStorageName: dreamsdb
   dbBackupJob: true
+
+camps-index:
+  enabled: true
+  sparkAppSecretName: sparkdb-app
