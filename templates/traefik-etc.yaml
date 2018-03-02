@@ -70,6 +70,12 @@ data:
           url = "http://dreams:3000"
       {{ end }}
 
+      {{ if .Values.traefik.campsIndexPath }}
+      [backends.campsindex]
+        [backends.campsindex.servers.server1]
+          url = "http://camps-index:80"
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -107,6 +113,13 @@ data:
         passHostHeader = true
           [frontends.dreams.routes.route1]
             rule = "{{ .Values.traefik.dreamsHostsRule }}"
+      {{ end }}
+
+      {{ if .Values.traefik.campsIndexPath }}
+      [frontends.campsindex]
+        backend="campsindex"
+          [frontends.campsindex.routes.route1]
+            rule = "PathPrefixStrip: {{ .Values.traefik.campsIndexPath }}"
       {{ end }}
 
 {{ end }}

@@ -52,3 +52,11 @@ dreams:
 chatops:
   resources: >
     {"requests": {"cpu": "100m", "memory": "150Mi"}, "limits": {"cpu": "150m", "memory": "200Mi"}}
+
+camps-index:
+  enabled: false
+  image: gcr.io/midbarrn/midburn-camps-index-cd:14590fb7494ebab5a98784165150ad7a99b966b1
+  resources: >
+    {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "200m", "memory": "200Mi"}}
+  nginxResources: >
+    {"requests": {"cpu": "50m", "memory": "50Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}
