@@ -1,3 +1,5 @@
+camps-index:
+  image: gcr.io/midbarrn/midburn-camps-index-cd:14590fb7494ebab5a98784165150ad7a99b966b1
 chatops:
   image: gcr.io/midbarrn/midburn-chatops-cd:87918a8e169c114104ec19061dac2d8c2cd51432
 dreams:
