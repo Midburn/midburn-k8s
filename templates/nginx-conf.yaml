@@ -6,7 +6,7 @@ metadata:
 data:
   # default backend from traefik
   default.conf: |
-    proxy-buffering off;
+    proxy_buffering off;
     server {
       listen 80;
       server_name _;
