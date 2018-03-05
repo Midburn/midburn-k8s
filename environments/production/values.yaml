@@ -21,6 +21,8 @@ traefik:
       main = "production.midburn.org"
     [[acme.domains]]
       main = "volunteers.spark.midburn.org"
+    [[acme.domains]]
+      main = "dreams.midburn.org"
 #   [[acme.domains]]
 #     main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
