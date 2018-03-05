@@ -48,6 +48,16 @@ bi:
 
 dreams:
   enableDeployment: true
+  resources: >
+    {"requests": {"cpu": "400m", "memory": "800Mi"}, "limits": {"cpu": "800m", "memory": "1500Mi"}}
+  dbResources: >
+    {"requests": {"cpu": "100m", "memory": "150Mi"}, "limits": {"cpu": "200m", "memory": "600Mi"}}
+  autoscaler:
+    enabled: false
+    maxReplicas: 3
+    minReplicas: 1
+    targetCPUUtilizationPercentage: 80
+
 
 chatops:
   resources: >

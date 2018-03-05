@@ -26,9 +26,7 @@ spec:
         image: "postgres"
         ports:
         - containerPort: 5432
-        resources:
-          requests:
-            cpu: 20m
+        resources: {{ .Values.dbResources }}
         {{ if .Values.importDB }}
         command:
         - bash

@@ -37,6 +37,7 @@ traefik:
   backupJob: true
   enableLoadBalancer: true
 # profilesHostsRule: "Host: profile.midburn.org;"
+  dreamsHostsRule: "Host: dreams.midburn.org;"
 #  SSLcheckMainDomain: production.midburn.org
 #  SSLcheckSparkDomain: spark.midburn.org
 #  SSLcheckProfilesDomain: profile.midburn.org
@@ -103,8 +104,14 @@ bi:
   persistentStorageName: metabase
 
 dreams:
-  enabled: false
+  enabled: true
+  enableSecrets: true
+  importDB: false
   APP_URL: https://dreams.midburn.org/
+  # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
+  persistentStorageName: dreamsdb
+  dbBackupJob: true
+
 
 chatops:
   enabled: true

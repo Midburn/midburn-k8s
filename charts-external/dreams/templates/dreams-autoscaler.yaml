@@ -1,0 +1,14 @@
+{{ if .Values.enabled }}{{ if .Values.autoscaler.enabled }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dreams
+spec:
+  maxReplicas: {{ .Values.autoscaler.maxReplicas }}
+  minReplicas: {{ .Values.autoscaler.minReplicas }}
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: dreams
+  targetCPUUtilizationPercentage: {{ .Values.autoscaler.targetCPUUtilizationPercentage }}
+{{ end }}{{ end }}

@@ -26,9 +26,7 @@ spec:
         image: {{ .Values.image | quote }}
         ports:
         - containerPort: 3000
-        resources:
-          requests:
-            cpu: 20m
+        resources: {{ .Values.resources }}
         env:
         - name: APP_URL
           value: {{ .Values.APP_URL }}
