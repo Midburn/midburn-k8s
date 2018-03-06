@@ -1,44 +1,32 @@
 # The Midburn Kubernetes Environment
 
-## Why can't it just work all the time?
+The Midburn Kubernetes environment manages most Midburn infrastructure as code.
 
-[![it can - with Kubernetes!](it-can-with-kubernetes.png)](https://cloud.google.com/kubernetes-engine/kubernetes-comic/)
-
-https://cloud.google.com/kubernetes-engine/kubernetes-comic/
-
+You can create a new environment using Google Cloud or, if you are familiar with Kubernetes, you can deploy the helm charts to any Kubernetes cluster.
 
 ## Interacting with the environment
 
-You can interact with the Kubernetes environment in the following ways - 
+### Prerequisites
 
-* GitHub - commits to master branch are continuously deployed to the relevant environment. See .travis.yaml for the continuous deployment configuration and deployed environments.
-* [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - Easy way for quickly running management commands. Setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying too much). You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files).
-* Any modern PC / OS should also work, you will just need to install some dependencies, mostly Docker and the gcloud SDK.
-* Docker + Google Cloud service account - for automation / CI / CD. See the Docker Ops section below for more details.
+* Using Linux / OSX? Use [Docker](https://docs.docker.com/install/)
+* Using Windows? Use [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart)
 
+### Quickstart
 
-## Initial installation and setup
+* Start a bash shell with all required dependencies and midburn-k8s code
+  * `docker run -it --entrypoint bash -e OPS_REPO_SLUG=Midburn/midburn-k8s orihoch/sk8s-ops`
+* Authenticate with Google Cloud Platform
+  * `gcloud auth login`
+* Switch to an environment
+  * `source switch_environment.sh staging`
+* Use `kubectl` to interact with Kubernetes
+  * `kubectl get pods`
+* Use `helm` to manage releases
+  * `helm ls`
 
-Ensure you have permissions on the relevant Google Project. Permissions are personal, so once you authenticate with your google account, you will have all permissions granted for you by the different Google Cloud projects.
+## Documentation
 
-To interact with the environment locally, install [Google Cloud SDK](https://cloud.google.com/sdk/) and run `gcloud auth login` to authenticate.
-
-On Google Cloud Shell you are already authenticated and all dependencies are installed.
-
-Clone the repo
-
-```
-git clone https://github.com/Midburn/midburn-k8s.git
-```
-
-All following commands should run from the midburn-k8s directory
-
-```
-cd midburn-k8s
-```
-
-
-## Environments
+### Environments
 
 The main environments should be committed to this repo under `environments` directory.
 
@@ -55,7 +43,7 @@ You can create a new environment by copying an existing environment directory an
 See the [sk8s environments documentation](https://github.com/OriHoch/sk8s/blob/master/environments/README.md#environments) for more details about environments, namespaces and clusters.
 
 
-## Releases and deployments
+### Releases and deployments
 
 [Helm](https://github.com/kubernetes/helm) manages everything for us.
 
@@ -118,7 +106,7 @@ kubectl get configmap --namespace=kube-system
 ```
 
 
-## Helm configuration values
+### Helm configuration values
 
 The default values are at `values.yaml` - these are used in the chart template files (under `templates`, `charts`  and `charts-external` directories)
 
@@ -127,7 +115,7 @@ Each environment can override these values using `environments/ENVIRONMENT_NAME/
 Finally, automation scripts write values to `environments/ENVIRONMENT_NAME/values.auto-updated.yaml` using the `update_yaml.py` script
 
 
-## External Charts
+### External Charts
 
 Charts under `charts-external` directory are deployed in a dedicated helm release for each chart.
 
@@ -143,7 +131,7 @@ This script does the following:
 * deploys a helm release named `(MAIN_RELEASE_NAME)-(CHART_NAME)-(ENVIRONMENT_NAME)` from the helm chart under `charts-external/CHART_NAME`
 
 
-## Secrets
+### Secrets
 
 Secrets are stored and managed directly in kubernetes and are not managed via Helm.
 
@@ -163,7 +151,7 @@ You can use the following snippet in the secrets.sh script to check if secret ex
 ```
 
 
-## Docker OPS
+### Docker OPS
 
 To faciliate CI/CD and other automated flows we use the [sk8s-ops](https://github.com/orihoch/sk8s-ops#sk8s-ops) docker container.
 
@@ -184,7 +172,7 @@ Get list of pods (assuming you have the required secret key under `secret-k8s.op
 See the [SK8S ops documentation](https://github.com/orihoch/sk8s-ops#sk8s-ops) for more details
 
 
-## Patching configuration values without Helm
+### Patching configuration values without Helm
 
 This method works in the following conditions:
 
@@ -208,7 +196,7 @@ kubectl rollout status deployment spark
 ```
 
 
-## Patching configuration values from CI / automation scripts
+### Patching configuration values from CI / automation scripts
 
 Create a [GitHub machine user](https://developer.github.com/v3/guides/managing-deploy-keys/#machine-users).
 
@@ -236,7 +224,7 @@ kubectl rollout status deployment spark
 ```
 
 
-## Continuous Deployment
+### Continuous Deployment
 
 Each app / module is self-deploying using the above method for patching configurations
 
@@ -277,7 +265,7 @@ travis env set --private K8S_OPS_GITHUB_REPO_TOKEN "*****"
 Commit the .travis.yml changes and the encrypted file.
 
 
-## Exposing services
+### Exposing services
 
 Main entrypoint is a [traefik](https://traefik.io/) service, exposed via a load balancer.
 
@@ -286,7 +274,7 @@ Traefik provides application load balancing with path/host-based rules. HTTPS is
 In addition to traefik, the nginx pod can optionally be used on specific service for more advanced use-cases such as auth or caching.
 
 
-## Static IP for the load balancer
+### Static IP for the load balancer
 
 Reserve a static IP:
 
@@ -308,7 +296,7 @@ traefik:
 ```
 
 
-## Http authentication
+### Http authentication
 
 HTTP authentication is provided using nginx.
 
@@ -336,7 +324,7 @@ nginx:
 ```
 
 
-## Authorize with GitHub to push changes
+### Authorize with GitHub to push changes
 
 Having infrastructure as code means you should be able to push any changes to infrastructure configuration back to GitHub.
 
@@ -359,14 +347,14 @@ git clone git@github.com:midburn/midburn-k8s.git
 
 
 
-## Delete an environment and related resources
+### Delete an environment and related resources
 
 ```
 helm delete midburn --purge
 ```
 
 
-## Shared / Persistent Storage
+### Shared / Persistent Storage
 
 Shared / Persistent storage is available by a dedicated storage instance which pods can connect to using NFS.
 
