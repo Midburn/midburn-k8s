@@ -1,0 +1,39 @@
+global:
+  k8sOpsSecretName: ops
+  k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+  environmentName: orihochtest1
+  opsRepoSlug: Midburn/midburn-k8s
+  opsRepoBranch: master
+  googleProjectId: midbarrn
+  projectName: midburn
+  enableRootChart: true
+
+traefik:
+  enabled: false
+  enableLoadBalancer: false
+  profilesHostsRule: ""
+
+spark:
+  enabled: true
+  enableDeployment: true
+  enableSecrets: false
+  dbImportJob:
+    IMPORT_URL: gs://midburn-k8s-backups/sparkdb-production-dump-2018-03-13-00-00.sql
+
+nginx:
+  enabled: false
+  htpasswdSecretName: nginx-htpasswd
+
+volunteers:
+  enabled: false
+  enableSecrets: false
+
+profiles:
+  enabled: false
+
+bi:
+  enabled: false
+
+camps-index:
+  enabled: false
+  sparkAppSecretName: sparkdb-app

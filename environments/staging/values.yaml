@@ -25,6 +25,8 @@ traefik:
       main = "profiles.staging.midburn.org"
     [[acme.domains]]
       main = "dreams.staging.midburn.org"
+    [[acme.domains]]
+      main = "spark.orihochtest1.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
@@ -45,6 +47,15 @@ traefik:
 #  SSLcheckProfilesDomain: profiles.staging.midburn.org
 #  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
   campsIndexPath: "/camps-2018/"
+  customBackends: |
+    [backends.orihochtest1]
+      [backends.orihochtest1.servers.server1]
+        url = "http://spark.orihochtest1:3000"
+  customFrontends: |
+    [frontends.orihochtest1]
+      backend="orihochtest1"
+      [frontends.orihochtest1.routes.route1]
+        rule = "Host: spark.orihochtest1.midburn.org;"
 
 spark:
 #  nodeEnv: production
