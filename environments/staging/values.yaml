@@ -25,6 +25,8 @@ traefik:
       main = "profiles.staging.midburn.org"
     [[acme.domains]]
       main = "dreams.staging.midburn.org"
+    [[acme.domains]]
+      main = "spark.testing.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
@@ -45,6 +47,15 @@ traefik:
 #  SSLcheckProfilesDomain: profiles.staging.midburn.org
 #  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
   campsIndexPath: "/camps-2018/"
+  customBackends: |
+    [backends.sparktesting]
+      [backends.sparktesting.servers.server1]
+        url = "http://spark.sparktesting:3000"
+  customFrontends: |
+    [frontends.sparktesting]
+      backend="sparktesting"
+      [frontends.sparktesting.routes.route1]
+        rule = "Host: spark.testing.midburn.org;"
 
 spark:
 #  nodeEnv: production
