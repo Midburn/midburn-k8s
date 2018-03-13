@@ -117,6 +117,8 @@ Edit the files and modify all occurences of ENVIRONMENT_NAME
 
 Replace the DB import job url - to get a newer DB dump / from a different environment
 
+Replace the Spark docker image
+
 Switch to the new environment and deploy the spark chart
 
 ```
@@ -142,6 +144,12 @@ Create a DNS A Record (In Midburn's AWS Route 53 service), e.g. from spark.ENVIR
 
 Edit `environments/staging/values.yaml` - add the domain to the traefik acmeDomains setting and the customFrontends and customBackends traefik configuration
 
+See [this commit](https://github.com/Midburn/midburn-k8s/commit/4ca4f894151a494b41d2a1b2f36f6f0235424994) for an example of the required changes
+
 After root chart deployment to staging, you should be able to access the testing spark at spark.ENVIRONMENT_NAME.midburn.org
 
-When you are done with the environment, delete the environment `./helm_remove_all.sh`
+When you are done with the testing environment, delete it:
+
+```
+source switch_environment.sh ENVIRONMENT_NAME; ./helm_remove_all.sh && rm -rf environments/ENVIRONMENT_NAME
+```

@@ -6,7 +6,7 @@ global:
   opsRepoBranch: master
   googleProjectId: midbarrn
   projectName: midburn
-  enableRootChart: true
+  enableRootChart: false
 
 traefik:
   enabled: false
@@ -19,6 +19,10 @@ spark:
   enableSecrets: false
   dbImportJob:
     IMPORT_URL: gs://midburn-k8s-backups/sparkdb-production-dump-2018-03-13-00-00.sql
+  # Commit SHA
+  image: gcr.io/midbarrn/midburn-spark-cd:cdfc8d1304cd171d123ea25a2eb4704bd938c682
+  # Tag Name
+  # image: gcr.io/midbarrn/midburn-spark-tag:v2.10.30
 
 nginx:
   enabled: false
