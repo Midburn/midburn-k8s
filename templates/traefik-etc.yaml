@@ -76,6 +76,10 @@ data:
           url = "http://camps-index:80"
       {{ end }}
 
+      {{ if .Values.traefik.customBackends }}
+{{ .Values.traefik.customBackends | indent 6 }}
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -120,6 +124,10 @@ data:
         backend="campsindex"
           [frontends.campsindex.routes.route1]
             rule = "PathPrefixStrip: {{ .Values.traefik.campsIndexPath }}"
+      {{ end }}
+
+      {{ if .Values.traefik.customFrontends }}
+{{ .Values.traefik.customFrontends | indent 6 }}
       {{ end }}
 
 {{ end }}

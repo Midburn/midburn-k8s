@@ -106,3 +106,42 @@ Daily dumps are uploaded to google storage
 
 Import from a dump using `charts-external/spark/recreate_db.sh`
 
+
+## Starting a testing environment
+
+Copy all the files from `charts-external/spark/testing-environment-template` directory to midburn-k8s repository
+
+It should be under `environments/ENVIRONMENT_NAME` - replace ENVIRONMENT_NAME with the name of the new environment.
+
+Edit the files and modify all occurences of ENVIRONMENT_NAME
+
+Replace the DB import job url - to get a newer DB dump / from a different environment
+
+Switch to the new environment and deploy the spark chart
+
+```
+source switch_environment.sh ENVIRONMENT_NAME;
+./helm_upgrade_external_chart.sh spark --dry-run --install && ./helm_upgrade_external_chart.sh spark --install
+```
+
+Use port forwarding to test the spark pod directly
+
+```
+kubectl port-forward "`kubectl get pods -o json -l app=spark | jq -r '.items[0].metadata.name'`" 3000
+```
+
+Spark should be available at http://localhost:3000
+
+You can access the DB from the staging adminer at https://staging.midburn.org/adminer
+
+System: MySQL, Server: sparkdb.ENVIRONMENT_NAME, Username: root, Password: 123456, Database: spark
+
+You can also configure the staging load balancer to expose the environment under a domain
+
+Create a DNS A Record (In Midburn's AWS Route 53 service), e.g. from spark.ENVIRONMENT_NAME.midburn.org to staging.midburn.org IP address
+
+Edit `environments/staging/values.yaml` - add the domain to the traefik acmeDomains setting and the customFrontends and customBackends traefik configuration
+
+After root chart deployment to staging, you should be able to access the testing spark at spark.ENVIRONMENT_NAME.midburn.org
+
+When you are done with the environment, delete the environment `./helm_remove_all.sh`
