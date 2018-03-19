@@ -13,6 +13,8 @@ You can create a new environment using Google Cloud or, if you are familiar with
 
 ### Quickstart
 
+#### Managing core midburn environments
+
 * Start a bash shell with all required dependencies and midburn-k8s code
   * `docker run -it --entrypoint bash -e OPS_REPO_SLUG=Midburn/midburn-k8s orihoch/sk8s-ops`
 * Authenticate with Google Cloud Platform
@@ -23,6 +25,15 @@ You can create a new environment using Google Cloud or, if you are familiar with
   * `kubectl get pods`
 * Use `helm` to manage releases
   * `helm ls`
+  
+#### Development of the infrastructure
+
+* Clone the midburn-k8s repo
+  * `git clone https://github.com/Midburn/midburn-k8s.git`
+  * `cd midburn-k8s`
+* Run with volume to the local midburn-k8s code
+  * `docker run -it --entrypoint bash -v `pwd`:/ops orihoch/sk8s-ops`
+* Continue with step above for managing the core environments, you can make changes to the files and they will be reflected inside the docker container
 
 ## Documentation
 
