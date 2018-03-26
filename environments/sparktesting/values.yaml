@@ -6,7 +6,7 @@ global:
   opsRepoBranch: master
   googleProjectId: midbarrn
   projectName: midburn
-  enableRootChart: false
+  enableRootChart: true
 
 traefik:
   enabled: false
