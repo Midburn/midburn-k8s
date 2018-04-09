@@ -7,6 +7,6 @@ dreams:
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
-  image: gcr.io/midbarrn/midburn-spark-cd:86317d24ea081af35d597ef9aa344d0081bc70e8
+  image: gcr.io/midbarrn/midburn-spark-cd:55119959871301683e27bdc96c5a6d8c0693b31e
 volunteers:
   image: gcr.io/midbarrn/midburn-volunteers-cd:755a79aca1a7f4c99902d6c85bdc2d8a18b9fe8a
