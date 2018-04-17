@@ -35,6 +35,36 @@ You can create a new environment using Google Cloud or, if you are familiar with
   * `docker run -it --entrypoint bash -v `pwd`:/ops orihoch/sk8s-ops`
 * Continue with step above for managing the core environments, you can make changes to the files and they will be reflected inside the docker container
 
+#### Using Minikube for local development
+
+Minikube can only run from a local Linux environment, you might need to install some dependencies, check the error messages.
+
+You should also have a Google Cloud service account json file with read permissions to Midburn google project
+
+*  [Install Minikube](https://github.com/kubernetes/minikube/releases)
+* Start a cluster
+  * `minikube start`
+* Clone the midburn-k8s repo
+  * `git clone https://github.com/Midburn/midburn-k8s.git`
+* Change to the midburn-k8s directory
+  * `cd midburn-k8s`
+* Switch to the minikube environment
+  * `source switch_environment.sh minikube`
+* Verify you are connected to `minikube` node
+  * `kubectl get nodes`
+* Install [helm client](https://docs.helm.sh/using_helm/#installing-the-helm-client)
+* Initialize helm
+  * `helm init --history-max 1 --upgrade --wait`
+* Verify helm version on both client and server
+  * `helm version`
+* Create the pull secret to the midburn project on google compute cloud
+  * `kubectl create secret docker-registry gcr-json-key --docker-server=https://gcr.io --docker-username=_json_key --docker-password="$(cat /service-account.json)" --docker-email=youremail@example.com`
+* Patch the default serviceaccount to use the pull secret
+  * `kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gcr-json-key"}]}'`
+* You should be able to install a chart, it will use the main environment staging values - which will load from google's docker repo
+  * `./helm_upgrade_external_chart.sh spark --install`
+
+
 ## Documentation
 
 ### Environments

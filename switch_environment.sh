@@ -18,8 +18,6 @@ if which dotenv >/dev/null && which helm >/dev/null && which kubectl >/dev/null 
   	ENVIRONMENT_NAME="${1}"	
   	if [ ! -f "environments/${ENVIRONMENT_NAME}/.env" ]; then
   		echo "missing environments/${ENVIRONMENT_NAME}/.env"
-  	elif [ -f ".env" ] && [ ! -L ".env" ]; then
-  		echo "existing .env file is not a symlink, will not overwrite"
   	else
   		[ -f .env ] && eval `dotenv -f ".env" list`
   		echo "Switching to ${ENVIRONMENT_NAME} environment"
