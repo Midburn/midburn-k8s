@@ -27,8 +27,9 @@ k8s_connect_custom() {
 	export K8S_ENVIRONMENT_NAME
 	export K8S_ENVIRONMENT_CONTEXT
     kubectl config set-context "${K8S_ENVIRONMENT_CONTEXT}" "--namespace=${K8S_NAMESPACE}" >/dev/null
+    kubectl config use-context "${K8S_ENVIRONMENT_CONTEXT}"
     [ "${K8S_CONNECT_ORIGINAL_PS1}" == "" ] && export K8S_CONNECT_ORIGINAL_PS1="${PS1}"
-    export PS1="${K8S_CONNECT_ORIGINAL_PS1}\[\033[01;33m\]${K8S_ENVIRONMENT_CONTEXT}\[\033[0m\]$ "
+    export PS1="${K8S_CONNECT_ORIGINAL_PS1}\[\033[01;33m\]`kubectl config current-context 2>/dev/null`\[\033[0m\]$ "
     source <(kubectl completion bash)
     echo "Connected to ${K8S_ENVIRONMENT_CONTEXT}"
 }
