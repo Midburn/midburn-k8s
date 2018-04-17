@@ -87,7 +87,8 @@ spark:
   volunteersBaseUrl: https://volunteers.staging.midburn.org
 
   # Supplier contract files
-    suppliersBucket: midburn-spark-supplier-files
+  suppliersBucket: midburn-spark-supplier-files
+
 nginx:
   htpasswdSecretName: nginx-htpasswd
 
