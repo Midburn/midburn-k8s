@@ -61,5 +61,7 @@ data:
   {{ end }}
 
   # SUPPLIER CONTRACT FILES
-  SPARK_SUPPLIER_CONTRACTS_BUCKET: {{ .Values.suppliers.bucket | quote }}
+  {{ if .Values.suppliersBucket }}
+  SPARK_SUPPLIER_CONTRACTS_BUCKET: {{ .Values.suppliersBucket | quote }}
+  {{ end }}
 {{ end }}

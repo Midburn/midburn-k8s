@@ -122,5 +122,4 @@ camps-index:
   enabled: true
   sparkAppSecretName: sparkdb-app
 
-suppliers:
-  bucket: midburn-spark-supplier-files
+suppliersBucket: midburn-spark-supplier-files
