@@ -81,6 +81,9 @@ spark:
   # Volunteers
   volunteersBaseUrl: https://volunteers.spark.midburn.org
 
+  # Supplier contract files
+  suppliersBucket: midburn-spark-supplier-files-prod
+
 nginx:
   htpasswdSecretName: nginx-htpasswd
 
@@ -122,4 +125,3 @@ camps-index:
   enabled: true
   sparkAppSecretName: sparkdb-app
 
-suppliersBucket: midburn-spark-supplier-files-prod
