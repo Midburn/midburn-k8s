@@ -18,7 +18,10 @@ echo "CHART_DIRECTORY=${CHART_DIRECTORY}"
 TEMPDIR=`mktemp -d`
 echo '{}' > "${TEMPDIR}/values.yaml"
 
-for VALUES_FILE in values.yaml environments/${K8S_ENVIRONMENT_NAME}/values.yaml environments/${K8S_ENVIRONMENT_NAME}/values.auto-updated.yaml
+for VALUES_FILE in values.yaml \
+                   environments/staging/values.auto-updated.yaml \
+                   environments/${K8S_ENVIRONMENT_NAME}/values.yaml \
+                   environments/${K8S_ENVIRONMENT_NAME}/values.auto-updated.yaml
 do
     if [ -f "${VALUES_FILE}" ]; then
         GLOBAL_VALUES=`./read_yaml.py "${VALUES_FILE}" global 2>/dev/null`

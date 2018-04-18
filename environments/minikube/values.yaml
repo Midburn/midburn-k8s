@@ -1,0 +1,29 @@
+global:
+  environmentName: minikube
+  projectName: midburn
+  enableRootChart: false
+
+traefik:
+  enabled: false
+  enableLoadBalancer: false
+  profilesHostsRule: ""
+
+spark:
+  enabled: true
+  enableDeployment: true
+  enableSecrets: false
+
+nginx:
+  enabled: false
+
+volunteers:
+  enabled: false
+
+profiles:
+  enabled: false
+
+bi:
+  enabled: false
+
+camps-index:
+  enabled: false
