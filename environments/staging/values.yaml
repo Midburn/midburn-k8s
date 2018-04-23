@@ -79,9 +79,11 @@ spark:
 
   # Drupal
   drupalSecretName: spark-drupal
-  drupalProfileApiURL: https://profile.midburn.org
+#  drupalProfileApiURL: https://profile.midburn.org
+  drupalProfileApiURL: https://34.243.29.88
   drupalProfileApiUser: spark@midburn.org
   DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
+#  drupalSkipLogin: "1"
 
   # Volunteers
   volunteersBaseUrl: https://volunteers.staging.midburn.org
