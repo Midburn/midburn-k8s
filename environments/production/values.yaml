@@ -77,7 +77,7 @@ spark:
   drupalProfileApiURL: https://profile.midburn.org
   drupalProfileApiUser: spark@midburn.org
   DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
-  drupalSkipLogin: "1"
+#  drupalSkipLogin: "1"
 
   # Volunteers
   volunteersBaseUrl: https://volunteers.spark.midburn.org
