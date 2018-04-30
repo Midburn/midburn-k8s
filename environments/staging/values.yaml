@@ -80,7 +80,7 @@ spark:
   # Drupal
   drupalSecretName: spark-drupal
 #  drupalProfileApiURL: https://profile.midburn.org
-  drupalProfileApiURL: https://profile.midburn.org
+  drupalProfileApiURL: https://profile-test.midburn.org
   drupalProfileApiUser: spark@midburn.org
   DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
 #  drupalSkipLogin: "1"
