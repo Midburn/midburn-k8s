@@ -82,6 +82,8 @@ spark:
 #  drupalProfileApiURL: https://profile.midburn.org
 #  drupalProfileApiURL: https://profile-test.midburn.org
   drupalProfileApiURL: https://34.253.4.85
+  # NODE_TLS_REJECT_UNAUTHORIZED is required to allow access to the test server which has invalid SSL cert
+  NODE_TLS_REJECT_UNAUTHORIZED: "0"
   drupalProfileApiUser: spark@midburn.org
   DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
 #  drupalSkipLogin: "1"

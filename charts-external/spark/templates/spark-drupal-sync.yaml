@@ -48,4 +48,6 @@ spec:
             secretKeyRef:
               name: spark-secret-token
               key: SPARK_SECRET_TOKEN
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: {{ .Values.NODE_TLS_REJECT_UNAUTHORIZED | default "" | quote }}
 {{ end }}{{ end }}
