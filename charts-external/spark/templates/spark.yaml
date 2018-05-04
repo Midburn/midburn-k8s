@@ -114,6 +114,8 @@ spec:
         - {"name": "SPARK_CAMP_FILES_REGION", "valueFrom": {"configMapKeyRef": {"name": "spark", "key": "SPARK_CAMP_FILES_REGION"}}}
         - {"name": "SPARK_CAMP_FILES_PRESIGN_URL_EXPIRE_SECONDS", "valueFrom": {"configMapKeyRef": {"name": "spark", "key": "SPARK_CAMP_FILES_PRESIGN_URL_EXPIRE_SECONDS"}}}
         {{ end }}
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: {{ .Values.NODE_TLS_REJECT_UNAUTHORIZED | default "" | quote }}
         readinessProbe:
           exec:
             command:
