@@ -443,3 +443,19 @@ Use the volume in a pod
           server: {{ .Values.global.persistentStorageIP | quote }}
       {{ end }}
 ```
+
+## Connect to MySQL Inside a the Cluster with Workbench or App
+1. Make sure you have Google Cloud SDK installed as detailed here: https://cloud.google.com/sdk/docs/quickstart 
+1. Authenticate with Google Cloud via `gcloud auth login`
+1. Make sure `kubectl` is installed - `gcloud components install kubectl`
+1. Clone this repo if you haven't already and run `source switch-environment.sh <your required env>`
+1. Get list of available pods - `kubectl get pods` and find the DB pod you would like to connect to.
+1. Run `kubectl port-forward <db pod name> <source-port>:<destination-port>`
+Example (for Spark MySQL): `kubectl port-forward sparkdb-<pod UUID> 3306:3306`
+
+Now you should be able to point MySQL Workbench to 127.0.0.1:3306 and connect to the remote DB.
+
+If you get an access token error, try running the following command:
+`gcloud "--project=${CLOUDSDK_CORE_PROJECT}" \
+          container clusters get-credentials "$CLOUDSDK_CONTAINER_CLUSTER" \
+          "--zone=${CLOUDSDK_COMPUTE_ZONE}"`
