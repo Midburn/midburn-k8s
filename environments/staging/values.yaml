@@ -93,6 +93,8 @@ spark:
 
   # Supplier contract files
   suppliersBucket: midburn-spark-supplier-files
+  # Gate force entry
+  gateSecretName: 123456
 
 nginx:
   htpasswdSecretName: nginx-htpasswd

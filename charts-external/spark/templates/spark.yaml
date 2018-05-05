@@ -97,6 +97,9 @@ spec:
         {{ if .Values.drupalSecretName }}
         - {"name": "DRUPAL_PROFILE_API_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.drupalSecretName | quote }}, "key": "DRUPAL_PROFILE_API_PASSWORD"}}}
         {{ end }}
+        {{ if .Values.gateSecretName }}
+        - {"name": "GATE_FORCE_ENTRY_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.gateSecretName | quote }}, "key": "GATE_FORCE_ENTRY_PASSWORD"}}}
+        {{ end }}
         {{ if .Values.enableSecrets }}
         - name: SPARK_SECRET_TOKEN
           valueFrom:
