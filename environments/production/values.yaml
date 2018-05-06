@@ -128,3 +128,11 @@ camps-index:
   enabled: true
   sparkAppSecretName: sparkdb-app
 
+tickets-sync:
+  enabled: true
+  #  kubectl create secret generic \
+  #  --from-literal=SPARKDB_USER= --from-literal=SPARKDB_PASS= --from-literal=SPARKDB_HOST= --from-literal=SPARKDB_NAME= \
+  #  --from-literal=PROFILEDB_USER= --from-literal=PROFILEDB_PASS= --from-literal=PROFILEDB_HOST= --from-literal=PROFILEDB_NAME=
+  secretName: tickets-sync
+  resources: >
+    {"requests": {"cpu": "50m", "memory": "200Mi"}, "limits": {"memory": "500Mi"}}

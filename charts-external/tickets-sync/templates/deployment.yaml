@@ -1,0 +1,20 @@
+{{ if .Values.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: tickets-sync
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tickets-sync
+    spec:
+      containers:
+      - name: sync
+        image: orihoch/midburn-k8s-tickets-sync@sha256:80b2c19338a6f1a20c81839f154783babe982bfcc1107e829b50206d57f4f8ba
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretName | quote }}
+        resources: {{ .Values.resources }}
+{{ end }}
