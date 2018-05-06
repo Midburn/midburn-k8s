@@ -1,0 +1,25 @@
+{{ if .Values.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: tickets-sync
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tickets-sync
+    spec:
+      containers:
+      - name: sync
+        image: orihoch/midburn-k8s-tickets-sync@sha256:9e0a9ea20bc5e4cf1ee536e11734745147d99f844d14ce7f01cd6371814c8bad
+        env:
+        - name: UPDATE_BATCH_SIZE
+          value: "100"
+        - name: UPDATE_INTERVAL_SECONDS
+          value: "60"
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretName | quote }}
+        resources: {{ .Values.resources }}
+{{ end }}
