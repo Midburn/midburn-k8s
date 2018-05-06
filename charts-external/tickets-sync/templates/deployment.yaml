@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: sync
-        image: orihoch/midburn-k8s-tickets-sync@sha256:16be619b413dca75025a3a1b692b8f6bcb637e5a1726b6012eea6b92c63aee38
+        image: orihoch/midburn-k8s-tickets-sync@sha256:9e0a9ea20bc5e4cf1ee536e11734745147d99f844d14ce7f01cd6371814c8bad
         env:
         - name: UPDATE_BATCH_SIZE
           value: "100"

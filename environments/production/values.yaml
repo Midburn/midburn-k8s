@@ -135,4 +135,4 @@ tickets-sync:
   #  --from-literal=PROFILEDB_USER= --from-literal=PROFILEDB_PASS= --from-literal=PROFILEDB_HOST= --from-literal=PROFILEDB_NAME=
   secretName: tickets-sync
   resources: >
-    {"requests": {"cpu": "50m", "memory": "200Mi"}, "limits": {"memory": "500Mi"}}
+    {"requests": {"cpu": "150m", "memory": "200Mi"}, "limits": {"memory": "500Mi"}}
