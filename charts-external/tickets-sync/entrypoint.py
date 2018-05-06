@@ -52,8 +52,9 @@ def update_profiles_entered_tickets(ticket_numbers, batch_size=None):
         current_batch = []
         for ticket_number in ticket_numbers:
             current_batch.append(ticket_number)
-            if len(current_batch) > batch_size:
+            if len(current_batch) >= batch_size:
                 update_profiles_entered_tickets(current_batch)
+                current_batch = []
         if len(current_batch) > 0:
             update_profiles_entered_tickets(current_batch)
 
@@ -62,7 +63,7 @@ def main():
     last_first_entrance_timestamp = None
     while True:
         spark_entered_tickets, last_first_entrance_timestamp = get_spark_entered_tickets(last_first_entrance_timestamp)
-        update_profiles_entered_tickets(spark_entered_tickets)
+        update_profiles_entered_tickets(spark_entered_tickets, int(os.environ.get('UPDATE_BATCH_SIZE', '500')))
         time.sleep(int(os.environ.get('UPDATE_INTERVAL_SECONDS', '60')))
 
 

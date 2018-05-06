@@ -12,7 +12,12 @@ spec:
     spec:
       containers:
       - name: sync
-        image: orihoch/midburn-k8s-tickets-sync@sha256:80b2c19338a6f1a20c81839f154783babe982bfcc1107e829b50206d57f4f8ba
+        image: orihoch/midburn-k8s-tickets-sync@sha256:16be619b413dca75025a3a1b692b8f6bcb637e5a1726b6012eea6b92c63aee38
+        env:
+        - name: UPDATE_BATCH_SIZE
+          value: "100"
+        - name: UPDATE_INTERVAL_SECONDS
+          value: "60"
         envFrom:
         - secretRef:
             name: {{ .Values.secretName | quote }}
