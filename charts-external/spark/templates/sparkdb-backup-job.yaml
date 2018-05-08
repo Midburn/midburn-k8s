@@ -6,7 +6,7 @@ kind: CronJob
 metadata:
   name: sparkdb-backup
 spec:
-  schedule: "@daily"
+  schedule: {{ .Values.dbBackupSchedule | default "@daily" | quote }}
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
