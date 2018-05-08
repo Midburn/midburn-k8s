@@ -62,6 +62,7 @@ spark:
   appSecretName: sparkdb-app
   enableDbInit: false
   dbBackupJob: true
+  dbBackupSchedule: "@hourly"
   # persistent storage was setup using environments/staging/persistent_storage_migration.sh
   persistentStorageName: sparkdb
 
