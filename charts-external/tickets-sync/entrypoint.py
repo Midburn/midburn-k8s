@@ -21,10 +21,10 @@ profile_engine.connect().close()
 def get_spark_entered_tickets(min_first_entry_timestamp=None):
     entered_tickets = set()
     conn = spark_engine.connect()
-    if min_first_entry_timestamp:
-        timestamp_query = "and first_entrance_timestamp > '{}'".format(min_first_entry_timestamp - datetime.timedelta(minutes=5))
-    else:
-        timestamp_query = ''
+    # if min_first_entry_timestamp:
+    #     timestamp_query = "and first_entrance_timestamp > '{}'".format(min_first_entry_timestamp - datetime.timedelta(minutes=5))
+    # else:
+    timestamp_query = ''
     last_first_entrance_timestamp = None
     last_ticket_number = None
     for row in conn.execute('select ticket_number, first_entrance_timestamp from tickets where inside_event=1 {}'.format(timestamp_query)):
