@@ -29,7 +29,7 @@ def get_spark_entered_tickets(min_first_entry_timestamp=None):
     last_ticket_number = None
     for row in conn.execute('select ticket_number, first_entrance_timestamp from tickets where inside_event=1 {}'.format(timestamp_query)):
         entered_tickets.add(int(row[0]))
-        if not last_first_entrance_timestamp or last_first_entrance_timestamp < row[1]:
+        if row[1] and (not last_first_entrance_timestamp or last_first_entrance_timestamp < row[1]):
             last_first_entrance_timestamp = row[1]
             last_ticket_number = row[0]
     conn.close()
