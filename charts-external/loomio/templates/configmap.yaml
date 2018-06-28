@@ -1,0 +1,100 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loomio
+data:
+  # this is the hostname of your app used by loomio
+  CANONICAL_HOST: talk.midburn.org
+
+  # this is to tell nginx that you want requests for this hostname to come to the app
+  VIRTUAL_HOST: talk.midburn.org
+  SITE_NAME: talk.midburn.org
+
+  # the number of dots in your hostname
+  TLD_LENGTH: "2"
+
+  # uncomment this if you want a default subdomain of www (eg: www.loomio.org)
+  # DEFAULT_SUBDOMAIN=www
+
+  # smtp settings
+  SUPPORT_EMAIL: support@talk.midburn.org
+  SMTP_DOMAIN: talk.midburn.org
+  SMTP_SERVER: in-v3.mailjet.com
+  SMTP_PORT: "2525"
+  # SMTP_USERNAME: smtpusername
+  # SMTP_PASSWORD: smtppassword
+
+  REPLY_HOSTNAME: talk.midburn.org
+
+  # helper bot is the account which welcomes people to their groups.
+  HELPER_BOT_EMAIL: support@talk.midburn.org
+  RAILS_ENV: production
+
+  # Number of webserver processes and threads
+  # threads are per worker. See https://github.com/puma/puma
+  PUMA_WORKERS: "2"
+  MIN_THREADS: "2"
+  MAX_THREADS: "8"
+
+  # Force all connections to be https
+  FORCE_SSL: "1"
+
+  # Enable rate limiting on group creation, other POST actions
+  USE_RACK_ATTACK: "1"
+
+# Send catch up email (missed yesterday) weekly
+# EMAIL_CATCH_UP_WEEKLY=1
+
+# subscribe on participation default for new users
+# uncomment this to change "subscribe on participation" to be false for new users
+# EMAIL_ON_PARTICIPATION_DEFAULT_FALSE=1
+#
+#
+# Errbit
+# ERRBIT_HOST
+# ERRBIT_KEY
+# ERRBIT_PORT
+
+# Uncomment these to disable features
+# FEATURES_DISABLE_CREATE_USER=1     # users must be invited
+# FEATURES_DISABLE_CREATE_GROUP=1    # users cannot create groups
+# FEATURES_DISABLE_PUBLIC_GROUPS=1   # disable /explore
+# FEATURES_DISABLE_HELP_LINK=1       # disable the help link
+# MAX_PENDING_INVITATIONS=100        # maximum unaccepted invitations a group have have
+
+# Enable search engines to index public content
+# ALLOW_ROBOTS=1
+
+# oauth providers, to let your users login using external accounts
+# FACEBOOK_APP_KEY=REPLACE
+# FACEBOOK_APP_SECRET=REPLACE
+# TWITTER_APP_KEY=REPLACE
+# TWITTER_APP_SECRET=REPLACE
+# GOOGLE_APP_KEY=REPLACE
+# GOOGLE_APP_SECRET=REPLACE
+# SLACK_APP_KEY
+# SLACK_APP_SECRET
+
+# Theme images
+# images should be a multiple of 32px tall.
+# THEME_ICON_SRC=/files/icon.png
+# THEME_APP_LOGO_SRC=/files/logo.svg
+# THEME_EMAIL_HEADER_LOGO_SRC=/files/logo_128h.png
+# THEME_EMAIL_FOOTER_LOGO_SRC=/files/logo_64h.png
+
+# used in emails. use rgb or hsl values, not hex
+# THEME_PRIMARY_COLOR=rgb(255,167,38)
+# THEME_ACCENT_COLOR=rgb(0,188,212)')
+# THEME_TEXT_ON_PRIMARY_COLOR=rgb(255,255,255)
+# THEME_TEXT_ON_ACCENT_COLOR=rgb(255,255,255)
+
+# select a palette from material: https://material.io/guidelines/style/color.html#color-color-palette
+# or generate your own theme at http://mcg.mbitson.com/
+# THEME_PRIMARY_PALETTE=custom_primary
+# THEME_ACCENT_PALETTE=custom_accent
+# THEME_PRIMARY_PALETTE_CONFIG={"default": "500"}
+# THEME_ACCENT_PALETTE_CONFIG={"default": "500", "hue-1": "400", "hue-2": "300", "hue-3": "200"}
+# THEME_CUSTOM_PRIMARY_PALETTE={ "50": "f2e0e5", "100": "deb3bf", "200": "c98094", "300": "b34d69", "400": "a22648", "500": "920028", "600": "8a0024", "700": "7f001e", "800": "750018", "900": "63000f", "A100": "ff939b", "A200": "ff606c", "A400": "ff2d3c", "A700": "ff1425", "contrastDefaultColor": "light", "contrastDarkColors": [ "50", "100", "200", "A100", "A200" ], "contrastLightColors": [ "300", "400", "500", "600", "700", "800", "900", "A400", "A700" ] }
+# THEME_CUSTOM_ACCENT_PALETTE={ "50": "e9f4fb", "100": "c8e4f6", "200": "a3d3f0", "300": "7ec1ea", "400": "62b3e6", "500": "46a6e1", "600": "3f9edd", "700": "3795d9", "800": "2f8bd5", "900": "207bcd", "A100": "ffffff", "A200": "d2e8ff", "A400": "9fcfff", "A700": "85c2ff", "contrastDefaultColor": "light", "contrastDarkColors": [ "50", "100", "200", "300", "400", "500", "600", "700", "A100", "A200", "A400", "A700" ], "contrastLightColors": [ "800", "900" ] }
+{{ end }}

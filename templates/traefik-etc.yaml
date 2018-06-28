@@ -80,6 +80,12 @@ data:
 {{ .Values.traefik.customBackends | indent 6 }}
       {{ end }}
 
+      {{ if .Values.traefik.enableLoomio }}
+      [backends.loomio]
+        [backends.loomio.servers.server1]
+          url = "http://loomio.loomio:3000"
+      {{ end }}
+
     [frontends]
       {{ if .Values.nginx.enabled }}
       [frontends.default]
@@ -128,6 +134,14 @@ data:
 
       {{ if .Values.traefik.customFrontends }}
 {{ .Values.traefik.customFrontends | indent 6 }}
+      {{ end }}
+
+      {{ if .Values.traefik.enableLoomio }}
+      [frontends.loomio]
+        backend="loomio"
+        passHostHeader = true
+          [frontends.loomio.routes.route1]
+            rule = "{{ .Values.traefik.loomioHostRule }}"
       {{ end }}
 
 {{ end }}

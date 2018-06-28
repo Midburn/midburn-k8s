@@ -1,0 +1,36 @@
+{{ if .Values.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: loomio-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: loomio-db
+    spec:
+      containers:
+      - name: loomio-db
+        image: postgres:9.6
+        ports:
+        - containerPort: 5432
+        resources: {"requests": {"cpu": "100m", "memory": "400Mi"}, "limits": {"memory": "1Gi"}}
+        env:
+        - name: PGDATA
+          value: /pgdata
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef: {name: loomio-db, key: POSTGRES_PASSWORD}
+        volumeMounts:
+        - name: pgdata
+          mountPath: /pgdata
+          subPath: pgdata
+      volumes:
+      - name: pgdata
+        gcePersistentDisk:
+          # gcloud compute disks create --size=100GB --zone=us-central1-a loomio-db-4
+          pdName: loomio-db-4
+{{ end }}

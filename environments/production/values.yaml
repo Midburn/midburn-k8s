@@ -23,6 +23,8 @@ traefik:
       main = "volunteers.spark.midburn.org"
     [[acme.domains]]
       main = "dreams.midburn.org"
+    [[acme.domains]]
+      main = "talk.midburn.org"
 #   [[acme.domains]]
 #     main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
@@ -45,6 +47,8 @@ traefik:
 #  SSLcheckProfilesDomain: profile.midburn.org
 #  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
   campsIndexPath: "/camps-2018/"
+  enableLoomio: true
+  loomioHostRule: "Host: talk.midburn.org;"
 
 spark:
   nodeEnv: production

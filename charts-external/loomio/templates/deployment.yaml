@@ -1,0 +1,75 @@
+{{ if .Values.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: loomio
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: loomio
+    spec:
+      containers:
+      - name: loomio
+        image: loomio/loomio:stable
+        ports:
+        - containerPort: 3000
+        resources: {"requests": {"cpu": "100m", "memory": "400Mi"}, "limits": {"memory": "1Gi"}}
+        envFrom:
+        - configMapRef: {"name": "loomio"}
+        - secretRef: {"name": "loomio"}
+        {{ if .Values.initializeDb }}
+        command:
+        - bash
+        - "-c"
+        - |
+          while ! rake db:setup; do sleep 5; done
+          echo rake db:setup completed successfully, disable initializeDb value and redeploy
+          while true; do sleep 86400; done
+        {{ end }}
+        volumeMounts:
+        - name: data
+          subPath: uploads
+          mountPath: /loomio/public/system
+        - name: data
+          subPath: files
+          mountPath: /loomio/public/files
+        - name: data
+          subPath: plugins
+          mountPath: /loomio/plugins/docker
+        - name: data
+          subPath: client
+          mountPath: /loomio/public/client
+      {{ if .Values.initializeDb }}{{ else }}
+      - name: worker
+        image: loomio/loomio:stable
+        resources: {"requests": {"cpu": "100m", "memory": "400Mi"}, "limits": {"memory": "1Gi"}}
+        envFrom:
+        - configMapRef: {"name": "loomio"}
+        - secretRef: {"name": "loomio"}
+        env:
+        - name: TASK
+          value: worker
+        volumeMounts:
+        - name: data
+          subPath: uploads
+          mountPath: /loomio/public/system
+        - name: data
+          subPath: files
+          mountPath: /loomio/public/files
+        - name: data
+          subPath: plugins
+          mountPath: /loomio/plugins/docker
+        - name: data
+          subPath: client
+          mountPath: /loomio/public/client
+      {{ end }}
+      volumes:
+      - name: data
+        gcePersistentDisk:
+          # gcloud compute disks create --size=100GB --zone=us-central1-a loomio-data
+          pdName: loomio-data
+{{ end }}
