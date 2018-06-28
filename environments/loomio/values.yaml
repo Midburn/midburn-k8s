@@ -1,0 +1,7 @@
+loomio:
+  enabled: true
+  # initializeDb: true
+  enableLoadBalancer: true
+  # gcloud compute addresses create loomio-smtp --region=us-central1
+  # gcloud compute addresses describe loomio-smtp --region=us-central1 | grep ^address:
+  loadBalancerIP: "35.193.122.48"
