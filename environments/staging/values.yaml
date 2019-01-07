@@ -58,7 +58,7 @@ traefik:
         rule = "Host: spark.testing.midburn.org;"
 
 spark:
-#  nodeEnv: production
+  nodeEnv: staging
   enableSlackNotification: true
   serverUrl: https://spark.staging.midburn.org/
 
