@@ -18,6 +18,7 @@ script:
         K8S_ENVIRONMENT_NAME="${DEPLOY_ENVIRONMENT}"
         OPS_REPO_SLUG="midburn/midburn-k8s"
         OPS_REPO_BRANCH="${DEPLOY_BRANCH}"
+        cat secret-k8s-ops.json | docker login -u _json_key --password-stdin https://gcr.io
         wget https://raw.githubusercontent.com/Midburn/midburn-k8s/master/run_docker_ops.sh
         chmod +x run_docker_ops.sh
         if ./run_docker_ops.sh "${K8S_ENVIRONMENT_NAME}" "
