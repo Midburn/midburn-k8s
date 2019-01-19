@@ -1,0 +1,101 @@
+{{ if .Values.enabled }}{{ if .Values.enableDeployment }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: communities
+spec:
+  ports:
+  - name: '3003'
+    port: 3003
+  selector:
+    app: communities
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: communities
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: communities
+    spec:
+      - name: communities
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: 3003
+        command:
+        - bash
+        - "-c"
+        - |
+          while true; do
+            if [ -e /migrations/ran ]; then
+              rm -f /migrations/ran
+              /home/communities/entrypoint.sh
+              exit 0
+            elif [ -e /migrations/failed ]; then
+              echo "migrations failed"
+              rm -f /migrations/failed
+              exit 1
+            fi
+            echo "waiting for migrations..."
+            sleep 5
+          done
+        resources: {{ .Values.resources }}
+        envFrom: [{"configMapRef": {"name": "communities"}}]
+        env:
+        {{ if .Values.appSecretName }}
+        - {"name": "COMMUNITIES_DB_DBNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
+        - {"name": "COMMUNITIES_DB_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_USER"}}}
+        - {"name": "COMMUNITIES_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_PASSWORD"}}}
+        {{ else }}
+        - {"name": "COMMUNITIES_DB_DBNAME", "value": "communities"}
+        - {"name": "SCOMMUNITIES_DB_USER", "value": "communities"}
+        - {"name": "COMMUNITIES_DB_PASSWORD", "value": "communities"}
+        {{ end }}
+        {{ if .Values.secureMailserverSecretName }}
+        - {"name": "SPARK_MAILSERVER_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.secureMailserverSecretName | quote }}, "key": "SPARK_MAILSERVER_USER"}}}
+        - {"name": "SPARK_MAILSERVER_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.secureMailserverSecretName | quote }}, "key": "SPARK_MAILSERVER_PASSWORD"}}}
+        {{ end }}
+        {{ if .Values.drupalSecretName }}
+        - {"name": "DRUPAL_PROFILE_API_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.drupalSecretName | quote }}, "key": "DRUPAL_PROFILE_API_PASSWORD"}}}
+        {{ end }}
+        {{ if .Values.gateSecretName }}
+        - {"name": "GATE_FORCE_ENTRY_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.gateSecretName | quote }}, "key": "GATE_FORCE_ENTRY_PASSWORD"}}}
+        {{ end }}
+        {{ if .Values.enableSecrets }}
+        - name: COMMUNITIES_SECRET_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: communities-secret-token
+              key: COMMUNITIES_SECRET_TOKEN
+        - name: COMMUNITIES_DEPLOY_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: slack-deploy-webhook
+              key: SLACK_DEPLOY_WEBHOOK
+        {{ end }}
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: {{ .Values.NODE_TLS_REJECT_UNAUTHORIZED | default "" | quote }}
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - "-c"
+            - curl -L localhost:3003 | grep midburn
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        {{ if .Values.enableSlackNotification }}
+        lifecycle:
+          postStart:
+            exec:
+              command: 
+              - 'bash'
+              - '-c'
+              - |
+                curl -X POST --data-urlencode \
+                "payload={\"channel\": \"#sparksystem-log\", \"username\": \"webhookbot\", \"text\": \"New k8s pod up and running! Hostname: $(hostname) Version: $(node -p "require('/home/communities/package.json').version") Env: {{ .Values.global.environmentName }} Commit: {{ .Values.image }}\", \"icon_emoji\": \":ghost:\"}" \
+                $SLACK_DEPLOY_WEBHOOK
+        {{ end }}
+{{ end }}{{ end }}

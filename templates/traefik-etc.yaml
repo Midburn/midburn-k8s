@@ -52,6 +52,12 @@ data:
           url = "http://spark:3000"
       {{ end }}
 
+      {{ if .Values.communities.enabled }}
+      [backend.communities]
+        [backedns.communities.servers.server1]
+          url = "http://communities:3003"
+      {{ end }}
+
       {{ if .Values.volunteers.enabled }}
       [backends.volunteers]
         [backends.volunteers.servers.server1]
@@ -107,6 +113,14 @@ data:
         passHostHeader = true
           [frontends.volunteers.routes.route1]
             rule = "{{ .Values.traefik.volunteersHostsRule }}"
+      {{ end }}
+
+      {{ if .Values.communities.enabled }}
+      [frontends.communities]
+        backend="communities"
+        passHostHeader = true
+          [frontends.communities.routes.route1]
+            rule = "{{ .Values.traefik.communitiesHostsRule }}"
       {{ end }}
 
       {{ if .Values.profiles.enabled }}

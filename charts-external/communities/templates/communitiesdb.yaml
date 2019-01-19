@@ -1,0 +1,81 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: communitiesdb
+labels:
+  app: communities
+spec:
+  ports:
+  - name: '3306'
+    port: 3306
+  selector:
+    app: communitiesdb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: communities-mysql-pv-claim
+  labels:
+    app: communities
+spec:
+  accessMode:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: communitiesdb
+  labels:
+    app: communities
+strategy:
+  type: Recreate
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: communities
+        tier: mysql
+    spec:
+      containers:
+      - name: communitiesdb
+        image: mysql:5.7
+        ports:
+        - {containerPort: 3306}
+        resources: {{ .Values.communitiesDbResources }}
+        {{ if .Values.enableDbInit }}
+        {{ if .Values.rootSecretName }}
+        envFrom:
+        # root secret - contains the mysql root password
+        - secretRef:
+            name: {{ .Values.rootSecretName | quote }}
+        # app secret - contains the communities db connection details
+        - secretRef:
+            name: {{ .Values.appSecretName | quote }}
+        {{ else }}
+        # default values for insecure environment
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        - name: MYSQL_DATABASE
+          value: communities
+        - name: MYSQL_USER
+          value: communities
+        - name: MYSQL_PASSWORD
+          value: communities
+        {{ end }}
+        {{ end }}
+      {{ if .Values.persistentStorageName }}
+        volumeMounts:
+        - name: communitiesdb
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: communitiesdb-storage
+        persistentVolumeClaim:
+          claimName: communities-mysql-pv-claim
+      {{ end }}
+{{ end }}
