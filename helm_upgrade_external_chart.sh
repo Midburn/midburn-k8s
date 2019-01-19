@@ -35,6 +35,7 @@ do
 done
 
 VALUES=`cat "${TEMPDIR}/values.yaml"`
+cat "${TEMPDIR}/values.yaml" > ./test-values.yaml
 
 if [ "`./read_yaml.py "${TEMPDIR}/values.yaml" enabled 2>/dev/null`" == "true" ]; then
     CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
@@ -54,6 +55,7 @@ if [ "`./read_yaml.py "${TEMPDIR}/values.yaml" enabled 2>/dev/null`" == "true" ]
         exit 0
     fi
 else
+    echo "${VALUES}"
     echo "chart is disabled, not performing upgrade"
     exit 0
 fi

@@ -98,6 +98,7 @@ spark:
   gateSecretName: gate
 
 communities:
+  enabled: true
   nodeEnv: staging
   enableSlackNotification: true
   serverUrl: https://communities.staging.midburn.org
