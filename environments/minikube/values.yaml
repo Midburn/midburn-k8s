@@ -19,6 +19,9 @@ nginx:
 volunteers:
   enabled: false
 
+communities:
+  enables: false
+
 profiles:
   enabled: false
 
