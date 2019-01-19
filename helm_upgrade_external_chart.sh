@@ -35,6 +35,7 @@ do
 done
 
 VALUES=`cat "${TEMPDIR}/values.yaml"`
+cat "${TEMPDIR}/values.yaml" > ./test-values.yaml
 
 if [ "`./read_yaml.py "${TEMPDIR}/values.yaml" enabled 2>/dev/null`" == "true" ]; then
     CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
