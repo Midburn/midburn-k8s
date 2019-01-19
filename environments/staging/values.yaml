@@ -1,6 +1,6 @@
 global:
   k8sOpsSecretName: ops
-  k8sOpsImage: gcr.io/uumpa123/midburn-k8s
+  k8sOpsImage: gcr.io/midbarrn/sk8s-ops:latest
   environmentName: staging
   opsRepoSlug: Midburn/midburn-k8s
   opsRepoBranch: master
@@ -27,25 +27,28 @@ traefik:
       main = "dreams.staging.midburn.org"
     [[acme.domains]]
       main = "spark.testing.midburn.org"
+    [[acme.domains]]
+      main = "communities.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
   AWS_REGION: "eu-west-1"
   sparkHostsRule: "Host: spark.staging.midburn.org;"
   volunteersHostsRule: "Host: volunteers.staging.midburn.org;"
+  communitiesHostsRule: "Host: communities.staging.midburn.org;"
   # gcloud compute addresses create midburn-staging-traefik --region=us-central1
   # gcloud compute addresses describe midburn-staging-traefik --region=us-central1 | grep ^address:
   loadBalancerIP: "35.225.81.109"
   enableVolunteers: true
-#  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
+  #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
   enableLoadBalancer: true
   profilesHostsRule: "Host: profiles.staging.midburn.org;"
   dreamsHostsRule: "Host: dreams.staging.midburn.org;"
-#  SSLcheckMainDomain: staging.midburn.org
-#  SSLcheckSparkDomain: spark.staging.midburn.org
-#  SSLcheckProfilesDomain: profiles.staging.midburn.org
-#  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
+  #  SSLcheckMainDomain: staging.midburn.org
+  #  SSLcheckSparkDomain: spark.staging.midburn.org
+  #  SSLcheckProfilesDomain: profiles.staging.midburn.org
+  #  SSLcheckVolunteersDomain: volunteers.staging.midburn.org
   campsIndexPath: "/camps-2018/"
   customBackends: |
     [backends.sparktesting]
@@ -84,7 +87,7 @@ spark:
   NODE_TLS_REJECT_UNAUTHORIZED: "0"
   drupalProfileApiUser: spark@midburn.org
   DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
-#  drupalSkipLogin: "1"
+  #  drupalSkipLogin: "1"
 
   # Volunteers
   volunteersBaseUrl: https://volunteers.staging.midburn.org
@@ -93,6 +96,15 @@ spark:
   suppliersBucket: midburn-spark-supplier-files
   # Gate force entry
   gateSecretName: gate
+
+communities:
+  nodeEnv: staging
+  enableSlackNotification: true
+  serverUrl: https://communities.staging.midburn.org
+  rootSecretName: communitiesdb-root
+  appSecretName: communitiesdb-app
+  dbBackupJob: true
+  persistentStorageName: communitiesdb
 
 nginx:
   htpasswdSecretName: nginx-htpasswd

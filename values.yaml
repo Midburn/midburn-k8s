@@ -8,7 +8,7 @@ sparkdb:
 
 global:
   debug: false
-  opsImage: orihoch/midburn-k8s
+  opsImage: gcr.io/midbarrn/sk8s-ops
 
 nginx:
   enabled: true
@@ -18,7 +18,6 @@ ops:
 
 spark:
   enabled: true
-  image: orihoch/spark:modernize-dockerize
   enableDeployment: true
   sparkDbResources: >
     {"requests": {"cpu": "300m", "memory": "600Mi"}, "limits": {"cpu": "600m", "memory": "1500Mi"}}
@@ -29,6 +28,20 @@ spark:
   enableDbInit: true
   sparkAutoscaler:
     enabled: false
+  enableSecrets: true
+
+communities:
+  enabled: true
+  communitiesDbResourceds: >
+    { "requests": {"cpu": "300m", "memory": "600Mi"}, "limits": {"cpu: "600m", "memory": "1500Mi"}}
+  resources: >
+    {"requests": {"cpu": "100m", "memory": "300Mi"}, "limits": {"cpu": "200m", "memory": "600Mi"}}
+  migrationsResources:
+    {
+      "requests": { "cpu": "10m", "memory": "50Mi" },
+      "limits": { "cpu": "200m", "memory": "600Mi" },
+    }
+  enableDbInit: false
   enableSecrets: true
 
 traefik:
@@ -57,7 +70,6 @@ dreams:
     maxReplicas: 3
     minReplicas: 1
     targetCPUUtilizationPercentage: 80
-
 
 chatops:
   resources: >
