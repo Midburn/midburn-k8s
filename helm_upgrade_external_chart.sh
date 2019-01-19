@@ -54,6 +54,7 @@ if [ "`./read_yaml.py "${TEMPDIR}/values.yaml" enabled 2>/dev/null`" == "true" ]
         exit 0
     fi
 else
+    echo "${VALUES}"
     echo "chart is disabled, not performing upgrade"
     exit 0
 fi

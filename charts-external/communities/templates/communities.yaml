@@ -21,14 +21,11 @@ spec:
       labels:
         app: communities
     spec:
+      containers:
       - name: communities
         image: {{ .Values.image }}
         ports:
         - containerPort: 3003
-        command:
-        - bash
-        - "-c"
-        - /home/communities/entrypoint.sh
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:

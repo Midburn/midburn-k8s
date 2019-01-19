@@ -6,9 +6,9 @@ metadata:
 labels:
   app: communities
 spec:
+  type: ClusterIP
   ports:
-  - name: '3306'
-    port: 3306
+  - port: 3306
   selector:
     app: communitiesdb
 ---
@@ -19,7 +19,7 @@ metadata:
   labels:
     app: communities
 spec:
-  accessMode:
+  accessModes:
     - ReadWriteOnce
   resources:
     requests:
@@ -43,11 +43,10 @@ spec:
     spec:
       containers:
       - name: communitiesdb
-        image: mysql:5.7
+        image: mysql:5.6
         ports:
         - {containerPort: 3306}
         resources: {{ .Values.communitiesDbResources }}
-        {{ if .Values.enableDbInit }}
         {{ if .Values.rootSecretName }}
         envFrom:
         # root secret - contains the mysql root password
@@ -68,14 +67,11 @@ spec:
         - name: MYSQL_PASSWORD
           value: communities
         {{ end }}
-        {{ end }}
-      {{ if .Values.persistentStorageName }}
         volumeMounts:
-        - name: communitiesdb
+        - name: communitiesdb-storage
           mountPath: /var/lib/mysql
       volumes:
       - name: communitiesdb-storage
         persistentVolumeClaim:
           claimName: communities-mysql-pv-claim
-      {{ end }}
 {{ end }}
