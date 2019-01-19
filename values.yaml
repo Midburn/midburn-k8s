@@ -32,6 +32,7 @@ spark:
 
 communities:
   enabled: true
+  enableDeployment: true
   communitiesDbResourceds: >
     { "requests": {"cpu": "300m", "memory": "600Mi"}, "limits": {"cpu: "600m", "memory": "1500Mi"}}
   resources: >
