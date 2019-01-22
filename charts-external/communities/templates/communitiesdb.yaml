@@ -3,14 +3,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: communitiesdb
-labels:
-  app: communities
+  labels:
+    app: communities
 spec:
-  type: ClusterIP
   ports:
-  - port: 3306
+    - port: 3306
   selector:
-    app: communitiesdb
+    app: communities
+    tier: mysql
+  clusterIP: None
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -31,9 +32,13 @@ metadata:
   name: communitiesdb
   labels:
     app: communities
-strategy:
-  type: Recreate
 spec:
+  selector:
+    matchLabels:
+      app: communities
+      tier: mysql
+  strategy:
+    type: Recreate
   replicas: 1
   template:
     metadata:
@@ -45,28 +50,30 @@ spec:
       - name: communitiesdb
         image: mysql:5.6
         ports:
-        - {containerPort: 3306}
+        - containerPort: 3306
+          name: mysql
         resources: {{ .Values.communitiesDbResources }}
-        {{ if .Values.rootSecretName }}
         envFrom:
         # root secret - contains the mysql root password
         - secretRef:
             name: {{ .Values.rootSecretName | quote }}
         # app secret - contains the communities db connection details
-        - secretRef:
-            name: {{ .Values.appSecretName | quote }}
-        {{ else }}
-        # default values for insecure environment
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: "123456"
-        - name: MYSQL_DATABASE
-          value: communities
-        - name: MYSQL_USER
-          value: communities
-        - name: MYSQL_PASSWORD
-          value: communities
-        {{ end }}
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.appSecretName | quote }}
+                key: MYSQL_DB_NAME
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.appSecretName | quote }}
+                key: MYSQL_DB_USERNAME
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.appSecretName | quote }}
+                key: MYSQL_DB_PASSWORD
         volumeMounts:
         - name: communitiesdb-storage
           mountPath: /var/lib/mysql

@@ -3,36 +3,50 @@ apiVersion: v1
 kind: Service
 metadata:
   name: communities
+  labels:
+    app: communities
 spec:
   ports:
-  - name: '3003'
-    port: 3003
+  - name: '3006'
+    port: 3006
   selector:
     app: communities
+    tier: frontend
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: communities
+  labels:
+    app: communities
 spec:
+  selector:
+    matchLabels:
+      app: communities
+      tier: frontend
   replicas: 1
   template:
     metadata:
       labels:
         app: communities
+        tier: frontend
     spec:
       containers:
       - name: communities
         image: {{ .Values.image }}
         ports:
-        - containerPort: 3003
+        - containerPort: 3006
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:
+        - {"name": "MYSQL_ROOT_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.rootSecretName | quote }}, "key": "MYSQL_ROOT_PASSWORD"}}}
+        - name: PORT
+          value: {{ .Values.port | default "3006" | quote }}
         {{ if .Values.appSecretName }}
-        - {"name": "COMMUNITIES_DB_DBNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
-        - {"name": "COMMUNITIES_DB_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_USER"}}}
-        - {"name": "COMMUNITIES_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_PASSWORD"}}}
+        - {"name": "MYSQL_DB_HOST", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_HOST"}}}
+        - {"name": "MYSQL_DB_NAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_NAME"}}}
+        - {"name": "MYSQL_DB_USERNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_USERNAME"}}}
+        - {"name": "MYSQL_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_PASSWORD"}}}
         {{ else }}
         - {"name": "COMMUNITIES_DB_DBNAME", "value": "communities"}
         - {"name": "SCOMMUNITIES_DB_USER", "value": "communities"}
@@ -48,18 +62,11 @@ spec:
         {{ if .Values.gateSecretName }}
         - {"name": "GATE_FORCE_ENTRY_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.gateSecretName | quote }}, "key": "GATE_FORCE_ENTRY_PASSWORD"}}}
         {{ end }}
-        {{ if .Values.enableSecrets }}
-        - name: COMMUNITIES_SECRET_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: communities-secret-token
-              key: COMMUNITIES_SECRET_TOKEN
-        - name: COMMUNITIES_DEPLOY_WEBHOOK
+        - name: SLACK_DEPLOY_WEBHOOK
           valueFrom:
             secretKeyRef:
               name: slack-deploy-webhook
               key: SLACK_DEPLOY_WEBHOOK
-        {{ end }}
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: {{ .Values.NODE_TLS_REJECT_UNAUTHORIZED | default "" | quote }}
         readinessProbe:
@@ -67,7 +74,7 @@ spec:
             command:
             - bash
             - "-c"
-            - curl -L localhost:3003 | grep midburn
+            - curl -L localhost:3006 | grep midburn
           initialDelaySeconds: 5
           periodSeconds: 5
         {{ if .Values.enableSlackNotification }}
