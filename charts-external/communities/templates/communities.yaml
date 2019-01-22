@@ -3,33 +3,23 @@ apiVersion: v1
 kind: Service
 metadata:
   name: communities
-  labels:
-    app: communities
 spec:
   ports:
-  - name: '3006'
-    port: 3006
+  - port: 3006
+    targetPort: 3006
   selector:
     app: communities
-    tier: frontend
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: communities
-  labels:
-    app: communities
 spec:
-  selector:
-    matchLabels:
-      app: communities
-      tier: frontend
   replicas: 1
   template:
     metadata:
       labels:
         app: communities
-        tier: frontend
     spec:
       containers:
       - name: communities
@@ -70,13 +60,13 @@ spec:
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: {{ .Values.NODE_TLS_REJECT_UNAUTHORIZED | default "" | quote }}
         readinessProbe:
-          exec:
-            command:
-            - bash
-            - "-c"
-            - curl -L localhost:3006 | grep midburn
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3006
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
         {{ if .Values.enableSlackNotification }}
         lifecycle:
           postStart:

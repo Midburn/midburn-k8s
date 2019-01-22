@@ -3,22 +3,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: communitiesdb
-  labels:
-    app: communities
 spec:
   ports:
     - port: 3306
   selector:
-    app: communities
-    tier: mysql
-  clusterIP: None
+    app: communitiesdb
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: communities-mysql-pv-claim
   labels:
-    app: communities
+    app: communitiesdb
 spec:
   accessModes:
     - ReadWriteOnce
@@ -30,21 +26,14 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: communitiesdb
-  labels:
-    app: communities
 spec:
-  selector:
-    matchLabels:
-      app: communities
-      tier: mysql
   strategy:
     type: Recreate
   replicas: 1
   template:
     metadata:
       labels:
-        app: communities
-        tier: mysql
+        app: communitiesdb
     spec:
       containers:
       - name: communitiesdb
