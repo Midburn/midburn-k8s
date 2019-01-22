@@ -3,10 +3,10 @@ camps-index:
 chatops:
   image: gcr.io/midbarrn/midburn-chatops-cd:11bf6c93148b1b259ab0251e4352116eefdde56d
 dreams:
-  image: gcr.io/midbarrn/midburn-dreams-tag:v3.0.3
+  image: gcr.io/midbarrn/midburn-dreams-tag:event-2019
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
   image: gcr.io/midbarrn/midburn-spark-tag:v3.3.0
 volunteers:
-  image: gcr.io/midbarrn/midburn-volunteers-cd:b1f4d0b317780f077780b08d5861493f5cf61bc9
+  image: gcr.io/midbarrn/midburn-volunteers-cd:9059eeece6c114518c96771343464f1bf8063dbc
