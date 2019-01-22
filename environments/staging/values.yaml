@@ -99,7 +99,8 @@ spark:
 
 communities:
   enabled: true
-  nodeEnv: staging
+  nodeEnv: production
+  port: "3006"
   enableSlackNotification: true
   serverUrl: https://communities.staging.midburn.org
   rootSecretName: communitiesdb-root
