@@ -24,6 +24,14 @@ data:
           address = ":443"
             [entryPoints.https.tls]
         {{ end }}
+        {{ if .Values.traefik.dashboard }}
+        [entryPoints.dash]
+          address = ":8081"
+    
+    [api]
+    entryPoint = "dash"
+    dashboard = true
+    {{ end }}
 
     {{ if .Values.traefik.acmeEmail }}
     # let's encrypt automatic ssl certificate issue and renewal
@@ -53,8 +61,8 @@ data:
       {{ end }}
 
       {{ if .Values.communities.enabled }}
-      [backend.communities]
-        [backedns.communities.servers.server1]
+      [backends.communities]
+        [backends.communities.servers.server1]
           url = "http://communities:3006"
       {{ end }}
 

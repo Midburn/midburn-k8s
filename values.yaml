@@ -42,6 +42,7 @@ communities:
 
 traefik:
   enabled: true
+  dashboard: false
 
 volunteers:
   enabled: true
