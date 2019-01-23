@@ -29,6 +29,8 @@ spec:
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:
+        - name: SPARK_HOST
+          value: {{ .Values.SPARK_HOST | quote }}
         - {"name": "MYSQL_ROOT_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.rootSecretName | quote }}, "key": "MYSQL_ROOT_PASSWORD"}}}
         - name: PORT
           value: {{ .Values.port | default "3006" | quote }}
@@ -39,7 +41,7 @@ spec:
         - {"name": "MYSQL_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_PASSWORD"}}}
         {{ else }}
         - {"name": "COMMUNITIES_DB_DBNAME", "value": "communities"}
-        - {"name": "SCOMMUNITIES_DB_USER", "value": "communities"}
+        - {"name": "COMMUNITIES_DB_USER", "value": "communities"}
         - {"name": "COMMUNITIES_DB_PASSWORD", "value": "communities"}
         {{ end }}
         {{ if .Values.secureMailserverSecretName }}

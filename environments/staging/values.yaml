@@ -92,6 +92,9 @@ spark:
   # Volunteers
   volunteersBaseUrl: https://volunteers.staging.midburn.org
 
+  # Communities
+  communitiesBaseUrl: http://communities.staging.midburn.org/
+
   # Supplier contract files
   suppliersBucket: midburn-spark-supplier-files
   # Gate force entry
@@ -100,6 +103,7 @@ spark:
 communities:
   enabled: true
   nodeEnv: production
+  SPARK_HOST: https://spark.staging.midburn.org
   port: "3006"
   enableSlackNotification: true
   serverUrl: https://communities.staging.midburn.org

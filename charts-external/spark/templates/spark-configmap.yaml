@@ -61,6 +61,11 @@ data:
   VOLUNTEERS_BASE_URL: {{ .Values.volunteersBaseUrl | quote }}
   {{ end }}
 
+  # COMUNNITIES
+  {{ if .Values.communitiesBaseUrl }}
+  COMMUNITIES_URL: {{ .Values.communitiesBaseUrl | quote }}
+  {{ end }}
+
   # SUPPLIER CONTRACT FILES
   {{ if .Values.suppliersBucket }}
   SPARK_SUPPLIER_CONTRACTS_BUCKET: {{ .Values.suppliersBucket | quote }}
