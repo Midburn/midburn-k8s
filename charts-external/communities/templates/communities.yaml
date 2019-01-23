@@ -40,9 +40,9 @@ spec:
         - {"name": "MYSQL_DB_USERNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_USERNAME"}}}
         - {"name": "MYSQL_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DB_PASSWORD"}}}
         {{ else }}
-        - {"name": "COMMUNITIES_DB_DBNAME", "value": "communities"}
-        - {"name": "COMMUNITIES_DB_USER", "value": "communities"}
-        - {"name": "COMMUNITIES_DB_PASSWORD", "value": "communities"}
+        - {"name": "MYSQL_DB_NAME", "value": "communities"}
+        - {"name": "MYSQL_DB_USERNAME", "value": "communities"}
+        - {"name": "MYSQL_DB_PASSWORD", "value": "communities"}
         {{ end }}
         {{ if .Values.secureMailserverSecretName }}
         - {"name": "SPARK_MAILSERVER_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.secureMailserverSecretName | quote }}, "key": "SPARK_MAILSERVER_USER"}}}
