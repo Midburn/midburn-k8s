@@ -91,6 +91,9 @@ spark:
 
   # Volunteers
   volunteersBaseUrl: https://volunteers.staging.midburn.org
+  
+  # Communities
+  COMMUNITIES_URL: http://communities.staging.midburn.org/
 
   # Supplier contract files
   suppliersBucket: midburn-spark-supplier-files
