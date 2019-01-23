@@ -87,6 +87,9 @@ spark:
   # Volunteers
   volunteersBaseUrl: https://volunteers.spark.midburn.org
 
+  # Communities
+  communitiesBaseUrl: http://communities.spark.midburn.org/
+
   # Supplier contract files
   suppliersBucket: midburn-spark-supplier-files-prod
   # Gate force entry

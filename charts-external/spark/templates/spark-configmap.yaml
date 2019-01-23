@@ -61,6 +61,9 @@ data:
   VOLUNTEERS_BASE_URL: {{ .Values.volunteersBaseUrl | quote }}
   {{ end }}
 
+  # COMUNNITIES
+  COMMUNITIES_URL: {{ .Values.communitiesBaseUrl | default "http://communities.spark.midburn.org/" | quote }}
+
   # SUPPLIER CONTRACT FILES
   {{ if .Values.suppliersBucket }}
   SPARK_SUPPLIER_CONTRACTS_BUCKET: {{ .Values.suppliersBucket | quote }}
