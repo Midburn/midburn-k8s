@@ -29,6 +29,8 @@ spec:
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:
+        - name: JWT_KEY
+          value: authToken
         - name: SPARK_SECRET_TOKEN
           valueFrom:
             secretKeyRef:
