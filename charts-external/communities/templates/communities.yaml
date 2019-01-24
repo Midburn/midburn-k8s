@@ -29,7 +29,7 @@ spec:
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:
-        - name: SECRET
+        - name: SPARK_SECRET_TOKEN
           valueFrom:
             secretKeyRef:
               name: spark-secret-token
