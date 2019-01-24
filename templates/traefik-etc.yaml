@@ -54,7 +54,7 @@ data:
 
       {{ if .Values.communities.enabled }}
       [backends.communities]
-        [backedns.communities.servers.server1]
+        [backends.communities.servers.server1]
           url = "http://communities:3006"
       {{ end }}
 
