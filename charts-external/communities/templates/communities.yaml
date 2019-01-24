@@ -29,6 +29,13 @@ spec:
         resources: {{ .Values.resources }}
         envFrom: [{"configMapRef": {"name": "communities"}}]
         env:
+        - name: JWT_KEY
+          value: authToken
+        - name: SPARK_SECRET_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: spark-secret-token
+              key: SPARK_SECRET_TOKEN
         - name: SPARK_HOST
           value: {{ .Values.SPARK_HOST | quote }}
         - {"name": "MYSQL_ROOT_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.rootSecretName | quote }}, "key": "MYSQL_ROOT_PASSWORD"}}}
