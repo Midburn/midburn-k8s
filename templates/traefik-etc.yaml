@@ -27,7 +27,9 @@ data:
         {{ if .Values.traefik.dashboard }}
         [entryPoints.dash]
           address = ":8081"
-    
+        {{ end }}
+
+    {{ if .Values.traefik.dashboard }}
     [api]
     entryPoint = "dash"
     dashboard = true
