@@ -24,6 +24,16 @@ data:
           address = ":443"
             [entryPoints.https.tls]
         {{ end }}
+        {{ if .Values.traefik.dashboard }}
+        [entryPoints.dash]
+          address = ":8081"
+        {{ end }}
+
+    {{ if .Values.traefik.dashboard }}
+    [api]
+    entryPoint = "dash"
+    dashboard = true
+    {{ end }}
 
     {{ if .Values.traefik.acmeEmail }}
     # let's encrypt automatic ssl certificate issue and renewal
