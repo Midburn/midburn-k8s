@@ -5,7 +5,7 @@ chatops:
 communities:
   image: gcr.io/midbarrn/midburn-communities-cd:d97c6b1d023e1f457633407a8c594117381a470d
 dreams:
-  image: gcr.io/midbarrn/midburn-dreams-cd:9d29f204821295ae2b262ca577f9f4418b84a420
+  image: gcr.io/midbarrn/midburn-dreams-cd:628bc535a630ea4416765777f4a1ada1144f776b
 global:
   opsImage: gcr.io/uumpa123/midburn-k8s:24fb296508dcf05202b9bbb3ffb7c9bdd47a7128
 spark:
