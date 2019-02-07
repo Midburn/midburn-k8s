@@ -123,6 +123,7 @@ dreams:
   enabled: true
   enableSecrets: true
   importDB: false
+  SPARK_HOST: https://spark.midburn.org
   APP_URL: https://dreams.midburn.org/
   # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
   persistentStorageName: dreamsdb
