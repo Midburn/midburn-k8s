@@ -92,6 +92,8 @@ spec:
           valueFrom: {secretKeyRef: {name: "spark-secret-token",key: "SPARK_SECRET_TOKEN"}}
         - name: SPARK_URL
           value: https://spark.midburn.org/api/userlogin
+        - name: SPARK_HOST
+          value: {{ .Values.SPARK_HOST }}          
         - name: TZ
           value: Asia/Jerusalem
 {{ end }}{{ end }}
