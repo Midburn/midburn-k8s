@@ -3,7 +3,7 @@ camps-index:
 chatops:
   image: gcr.io/midbarrn/midburn-chatops-cd:87918a8e169c114104ec19061dac2d8c2cd51432
 communities:
-  image: gcr.io/midbarrn/midburn-communities-cd:6a47a6e75297c8181a1089231f05cbaf75994fe1
+  image: gcr.io/midbarrn/midburn-communities-cd:4ec26f1bff1179893331d13eb5c2242bc9305d12
 dreams:
   image: gcr.io/midbarrn/midburn-dreams-cd:ed207c15a19d9f80a456fc33f8929ad4cae3729a
 global:
