@@ -53,7 +53,7 @@ spec:
         - name: GOOGLE_CLIENT_SECRETS
           valueFrom: {secretKeyRef: {name: "dreams",key: "GOOGLE_CLIENT_SECRETS"}}
         - name: GOOGLE_DRIVE_INTEGRATION
-          value: "false"
+          value: "true"
         - name: LANG
           value: en_US.UTF-8
         - name: MULTI_LANG_SUPPORT
