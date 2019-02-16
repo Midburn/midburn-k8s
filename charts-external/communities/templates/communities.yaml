@@ -51,6 +51,15 @@ spec:
         - {"name": "MYSQL_DB_USERNAME", "value": "communities"}
         - {"name": "MYSQL_DB_PASSWORD", "value": "communities"}
         {{ end }}
+        {{ if .Values.appSecretName }}
+        - {"name": "SPARK_DB_DBNAME", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_DATABASE"}}}
+        - {"name": "SPARK_DB_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_USER"}}}
+        - {"name": "SPARK_DB_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.appSecretName | quote }}, "key": "MYSQL_PASSWORD"}}}
+        {{ else }}
+        - {"name": "SPARK_DB_DBNAME", "value": "spark"}
+        - {"name": "SPARK_DB_USER", "value": "spark"}
+        - {"name": "SPARK_DB_PASSWORD", "value": "spark"}
+        {{ end }}
         {{ if .Values.secureMailserverSecretName }}
         - {"name": "SPARK_MAILSERVER_USER", "valueFrom": {"secretKeyRef": {"name": {{ .Values.secureMailserverSecretName | quote }}, "key": "SPARK_MAILSERVER_USER"}}}
         - {"name": "SPARK_MAILSERVER_PASSWORD", "valueFrom": {"secretKeyRef": {"name": {{ .Values.secureMailserverSecretName | quote }}, "key": "SPARK_MAILSERVER_PASSWORD"}}}
