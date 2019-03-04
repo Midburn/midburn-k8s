@@ -25,30 +25,30 @@ traefik:
       main = "dreams.midburn.org"
     [[acme.domains]]
       main = "talk.midburn.org"
-#   [[acme.domains]]
-#     main = "profiles.staging.midburn.org"
+  #   [[acme.domains]]
+  #     main = "profiles.staging.midburn.org"
   acmeEmail: ori@uumpa.com
   dnsProvider: route53
   AWS_ACCESS_KEY_ID: AKIAIJUE2QVTBJAN7INQ
-  AWS_REGION: "eu-west-1"
-  sparkHostsRule: "Host: spark.midburn.org;"
-  volunteersHostsRule: "Host: volunteers.spark.midburn.org;"
+  AWS_REGION: 'eu-west-1'
+  sparkHostsRule: 'Host: spark.midburn.org;'
+  volunteersHostsRule: 'Host: volunteers.spark.midburn.org;'
   # gcloud compute addresses create midburn-production-traefik --region=us-central1
   # gcloud compute addresses describe midburn-production-traefik --region=us-central1 | grep ^address:
-  loadBalancerIP: "35.224.208.240"
+  loadBalancerIP: '35.224.208.240'
   enableVolunteers: true
-#  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
+  #  nodeHostName: gke-midbarrn-default-pool-ed511f2f-p08j
   backupJob: true
   enableLoadBalancer: true
-# profilesHostsRule: "Host: profile.midburn.org;"
-  dreamsHostsRule: "Host: dreams.midburn.org;"
-#  SSLcheckMainDomain: production.midburn.org
-#  SSLcheckSparkDomain: spark.midburn.org
-#  SSLcheckProfilesDomain: profile.midburn.org
-#  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
-  campsIndexPath: "/camps-2018/"
+  # profilesHostsRule: "Host: profile.midburn.org;"
+  dreamsHostsRule: 'Host: dreams.midburn.org;'
+  #  SSLcheckMainDomain: production.midburn.org
+  #  SSLcheckSparkDomain: spark.midburn.org
+  #  SSLcheckProfilesDomain: profile.midburn.org
+  #  SSLcheckVolunteersDomain: volunteers.spark.midburn.org
+  campsIndexPath: '/camps-2018/'
   enableLoomio: true
-  loomioHostRule: "Host: talk.midburn.org;"
+  loomioHostRule: 'Host: talk.midburn.org;'
 
 spark:
   nodeEnv: production
@@ -66,12 +66,12 @@ spark:
   appSecretName: sparkdb-app
   enableDbInit: false
   dbBackupJob: true
-  dbBackupSchedule: "@hourly"
+  dbBackupSchedule: '@hourly'
   # persistent storage was setup using environments/staging/persistent_storage_migration.sh
   persistentStorageName: sparkdb
 
   # Mail - using Ori's Mailjet account
-  disableMailtrap: "true"
+  disableMailtrap: 'true'
   secureMailserverSecretName: spark-mail
   mailserverFrom: support@spark.staging.midburn.org
   mailserverHost: in-v3.mailjet.com
@@ -81,14 +81,14 @@ spark:
   drupalSecretName: spark-drupal
   drupalProfileApiURL: https://profile.midburn.org
   drupalProfileApiUser: spark@midburn.org
-  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: "2"
-#  drupalSkipLogin: "1"
+  DRUPAL_TICKET_SYNC_EVERY_X_MINUTES: '2'
+  #  drupalSkipLogin: "1"
 
   # Volunteers
   volunteersBaseUrl: https://volunteers.spark.midburn.org
 
   # Communities
-  communitiesBaseUrl: http://communities.spark.midburn.org/
+  communitiesBaseUrl: http://communities.midburn.org/
 
   # Supplier contract files
   suppliersBucket: midburn-spark-supplier-files-prod
@@ -128,7 +128,6 @@ dreams:
   # persistent storage was setup using environments/staging/dreamsdb_persistent_storage_migration.sh
   persistentStorageName: dreamsdb
   dbBackupJob: true
-
 
 chatops:
   enabled: true
