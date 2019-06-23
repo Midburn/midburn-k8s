@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: dreamsdb
-        image: "postgres"
+        image: "postgres:10"
         ports:
         - containerPort: 5432
         resources: {{ .Values.dbResources }}
